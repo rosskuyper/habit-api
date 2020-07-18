@@ -1,0 +1,8 @@
+{
+    "private": true,
+    "dependencies": {
+        "apollo-server-lambda": "^2.16.0",
+        "graphql": "^15.3.0",
+        "query-string": "^6.13.1"
+    }
+}

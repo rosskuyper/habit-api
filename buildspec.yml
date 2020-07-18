@@ -1,0 +1,25 @@
+# https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 12
+    commands:
+      - curl -OLs https://releases.hashicorp.com/terraform/0.13.0-beta3/terraform_0.13.0-beta3_linux_amd64.zip
+      - unzip -qq terraform_0.13.0-beta3_linux_amd64.zip
+      - mv terraform /usr/local/bin/terraform
+      - chmod a+x /usr/local/bin/terraform
+
+  pre_build:
+    commands:
+      - cd "$CODEBUILD_SRC_DIR/infra"
+      - terraform init
+
+  build:
+    commands:
+      - cd "$CODEBUILD_SRC_DIR/infra"
+    #   - terraform plan -out=main.tf.plan
+    #   - terraform apply -auto-approve "main.tf.plan"
+    # finally:
+    #   - rm -f main.tf.plan
