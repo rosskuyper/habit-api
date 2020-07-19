@@ -92,7 +92,7 @@ resource "aws_lambda_function" "habit_graphql_main" {
 
   environment {
     variables = {
-      foo             = "bar",
+      NODE_ENV        = "production",
       BUGSNAG_API_KEY = "06e5d5340f1c75993d1c33e3c311ffc5",
     }
   }
