@@ -1,8 +1,16 @@
 {
     "private": true,
+    "scripts": {
+        "clean": "rm -rf build",
+        "build": "yarn clean; yarn tsc"
+    },
     "dependencies": {
+        "@types/aws-lambda": "^8.10.59",
         "apollo-server-lambda": "^2.16.0",
+        "aws-lambda": "^1.0.6",
+        "aws-sdk": "^2.715.0",
         "graphql": "^15.3.0",
-        "query-string": "^6.13.1"
+        "query-string": "^6.13.1",
+        "typescript": "^3.9.7"
     }
 }
