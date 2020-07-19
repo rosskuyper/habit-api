@@ -1,6 +1,8 @@
 {
     "compilerOptions": {
-        "lib": ["es2019"],
+        "lib": [
+            "es2019"
+        ],
         "target": "es2019",
         "module": "commonjs",
         "moduleResolution": "node",
@@ -15,5 +17,7 @@
         "pretty": true,
         "strict": true
     },
-    "include": ["src/**/*.ts"]
+    "include": [
+        "src/**/*.ts"
+    ]
 }

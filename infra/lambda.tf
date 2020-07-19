@@ -1,6 +1,7 @@
 locals {
-    lambda_function_name = "habit-graphql-main"
-    service_name = "habit-api"
+  lambda_function_name = "habit-graphql-main"
+  lambda_function_zip  = "../build/lambda.zip"
+  service_name         = "habit-api"
 }
 
 data "aws_iam_policy_document" "habit_graphql_assume_role" {
@@ -39,7 +40,7 @@ data "aws_iam_policy_document" "habit_graphql_main" {
     ]
 
     resources = [
-        "*"
+      "*"
     ]
   }
 
@@ -72,22 +73,22 @@ resource "aws_iam_role" "habit_graphql_main" {
 resource "aws_iam_role_policy" "habit_graphql_main" {
   name = "${local.service_name}-lambda-service-policy"
 
-  role = aws_iam_role.habit_graphql_main.id
+  role   = aws_iam_role.habit_graphql_main.id
   policy = data.aws_iam_policy_document.habit_graphql_main.json
 }
 
 resource "aws_lambda_function" "habit_graphql_main" {
-  filename      = "../lambda.zip"
+  filename      = local.lambda_function_zip
   function_name = local.lambda_function_name
   role          = aws_iam_role.habit_graphql_main.arn
   handler       = "graphql.handler"
 
-  source_code_hash = filebase64sha256("../lambda.zip")
+  source_code_hash = filebase64sha256(local.lambda_function_zip)
 
   runtime = "nodejs12.x"
 
   memory_size = 384
-  timeout = 15
+  timeout     = 15
 
   environment {
     variables = {

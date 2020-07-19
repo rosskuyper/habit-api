@@ -23,7 +23,7 @@ phases:
       - yarn build
       - mv node_modules/ build/
       - cd "$CODEBUILD_SRC_DIR/build"
-      - zip -r lambda.zip index.js index.js.map
+      - zip -r lambda.zip index.js index.js.map node_modules
       - cd "$CODEBUILD_SRC_DIR/infra"
       - terraform plan -out=main.tf.plan
       - terraform apply -auto-approve "main.tf.plan"
