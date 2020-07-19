@@ -1,17 +1,24 @@
 {
-    "private": true,
-    "scripts": {
-        "clean": "rm -rf build",
-        "build": "yarn clean; yarn tsc"
-    },
-    "dependencies": {
-        "@bugsnag/js": "^7.2.0",
-        "@types/aws-lambda": "^8.10.59",
-        "apollo-server-lambda": "^2.16.0",
-        "aws-lambda": "^1.0.6",
-        "aws-sdk": "^2.715.0",
-        "graphql": "^15.3.0",
-        "query-string": "^6.13.1",
-        "typescript": "^3.9.7"
-    }
+  "private": true,
+  "scripts": {
+    "clean": "rm -rf build",
+    "build": "yarn clean; yarn tsc",
+    "lint": "eslint --cache"
+  },
+  "dependencies": {
+    "@bugsnag/js": "^7.2.0",
+    "@types/aws-lambda": "^8.10.59",
+    "@typescript-eslint/eslint-plugin": "^3.6.1",
+    "@typescript-eslint/parser": "^3.6.1",
+    "apollo-server-lambda": "^2.16.0",
+    "aws-lambda": "^1.0.6",
+    "aws-sdk": "^2.715.0",
+    "eslint": "^7.5.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-import": "^2.22.0",
+    "graphql": "^15.3.0",
+    "prettier": "^2.0.5",
+    "query-string": "^6.13.1",
+    "typescript": "^3.9.7"
+  }
 }

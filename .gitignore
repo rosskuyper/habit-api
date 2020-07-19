@@ -1,3 +1,21 @@
+# node / npm / yarn
 node_modules/
+yarn-error.log
+npm-debug.log
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tf.plan
+.shastore
+
+# Build
 build/
-.terraform/
+dist/
+
+# eslint
+.eslintcache
+
+*.DS_Store
