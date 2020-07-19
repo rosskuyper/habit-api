@@ -81,10 +81,10 @@ resource "aws_lambda_function" "habit_graphql_main" {
   filename      = local.lambda_function_zip
   function_name = local.lambda_function_name
   role          = aws_iam_role.habit_graphql_main.arn
-  handler       = "graphql.handler"
 
   source_code_hash = filebase64sha256(local.lambda_function_zip)
 
+  handler = "index.handler"
   runtime = "nodejs12.x"
 
   memory_size = 384
@@ -92,7 +92,8 @@ resource "aws_lambda_function" "habit_graphql_main" {
 
   environment {
     variables = {
-      foo = "bar"
+      foo             = "bar",
+      BUGSNAG_API_KEY = "06e5d5340f1c75993d1c33e3c311ffc5",
     }
   }
 }

@@ -1,3 +1,4 @@
+import './utils/bugsnag'
 import { ApolloServer, gql } from 'apollo-server-lambda'
 import queryString from 'query-string'
 import {
