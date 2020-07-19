@@ -1,6 +1,9 @@
+import {ApolloServer} from 'apollo-server-lambda'
 import {APIGatewayProxyCallback, APIGatewayProxyEventV2, Context as LambdaContext} from 'aws-lambda'
+import {serverConfig} from './apollo'
 import {marshallLambdaEvent} from './utils/apigwProxy'
-import {server} from './apollo'
+
+const server = new ApolloServer(serverConfig)
 
 export const apolloHandler = server.createHandler({
   cors: {

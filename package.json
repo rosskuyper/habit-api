@@ -2,8 +2,8 @@
   "private": true,
   "scripts": {
     "clean": "rm -rf build",
-    "build": "yarn clean; yarn tsc",
-    "lint": "eslint --cache"
+    "build": "yarn clean; yarn tsc -p tsconfig-prod.json",
+    "dev": "ts-node-dev src/dev/server.ts"
   },
   "dependencies": {
     "@bugsnag/js": "^7.2.0",
@@ -16,9 +16,13 @@
     "eslint": "^7.5.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-import": "^2.22.0",
-    "graphql": "^15.3.0",
+    "graphql": "^14.0.0",
     "prettier": "^2.0.5",
     "query-string": "^6.13.1",
     "typescript": "^3.9.7"
+  },
+  "devDependencies": {
+    "apollo-server": "^2.16.0",
+    "ts-node-dev": "^1.0.0-pre.52"
   }
 }
