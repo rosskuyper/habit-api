@@ -13,3 +13,7 @@ data "aws_route53_zone" "habitualizer_com" {
 data "aws_kms_key" "ssm" {
   key_id = "alias/ssm"
 }
+
+data "aws_kms_key" "habit_ddb" {
+  key_id = "alias/habit_ddb"
+}
