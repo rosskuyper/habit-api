@@ -1,7 +1,8 @@
-import Bugsnag from "@bugsnag/js";
+import Bugsnag from '@bugsnag/js'
+import {BUGSNAG_API_KEY} from '../config'
 
 Bugsnag.start({
-  apiKey: process.env.BUGSNAG_API_KEY!,
-});
+  apiKey: BUGSNAG_API_KEY,
+})
 
-export default Bugsnag;
+export default Bugsnag
