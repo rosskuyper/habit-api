@@ -1,15 +1,10 @@
 locals {
-  service_name            = "habit-api"
   domain_name             = "habitualizer"
   client_id               = "1045305354627-8dff4jbap0sgmolhqq0derjcqjk06h0v.apps.googleusercontent.com"
   encrypted_client_secret = "AQICAHhOyM5btVbfvpZQ/4Z6nIPAoZ4eCTd0WLRyE39dZQLJxAEdvU6fPXHwEnCPS9qx2904AAAAdjB0BgkqhkiG9w0BBwagZzBlAgEAMGAGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMa7S92gc03Jajy6DkAgEQgDMMXd95ogFUZl+qNEfwLxuygVtb18Mv0FzwRBt2h6Ge9CSIB1mZIyQ+1yzODKLyDDntjaM="
   callback_urls = [
     "https://habitualizer.com/oauth/callback",
   ]
-}
-
-data "aws_kms_key" "ssm" {
-  key_id = "alias/ssm"
 }
 
 data "aws_kms_secrets" "decrypted_idp_client_secret" {

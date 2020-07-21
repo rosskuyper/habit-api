@@ -1,7 +1,6 @@
 locals {
   lambda_function_name = "habit-graphql-main"
   lambda_function_zip  = "../build/lambda.zip"
-  service_name         = "habit-api"
 }
 
 data "aws_iam_policy_document" "habit_graphql_assume_role" {
