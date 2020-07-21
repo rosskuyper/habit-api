@@ -1,7 +1,7 @@
 resource "aws_dynamodb_table" "habits" {
   name         = "habit-api-habits"
   billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "UserId"
+  hash_key     = "userId"
 
   server_side_encryption {
     enabled     = true
@@ -9,7 +9,7 @@ resource "aws_dynamodb_table" "habits" {
   }
 
   attribute {
-    name = "UserId"
+    name = "userId"
     type = "S"
   }
 }
