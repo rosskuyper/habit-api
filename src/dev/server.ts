@@ -3,15 +3,22 @@
  * A simple solution but as a caveat it means the lambda integration is bypassed.
  */
 
+import 'reflect-metadata'
 import {ApolloServer} from 'apollo-server'
 import {serverConfig} from '../apollo'
 
-const server = new ApolloServer({
-  ...serverConfig,
-  playground: true,
-  introspection: true,
-})
+const main = async () => {
+  const config = await serverConfig()
 
-server.listen(9000)
+  const server = new ApolloServer({
+    ...config,
+    playground: true,
+    introspection: true,
+  })
 
-console.log('Server is now listening at http://localhost:9000')
+  server.listen(9000)
+
+  console.log('Server is now listening at http://localhost:9000')
+}
+
+main()
