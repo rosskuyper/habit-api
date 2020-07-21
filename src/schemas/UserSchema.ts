@@ -1,4 +1,13 @@
-import {ObjectType, Field, ID} from 'type-graphql'
+import {ObjectType, Field, ID, InputType} from 'type-graphql'
+
+@InputType()
+export class AddUserInput {
+  @Field()
+  first!: string
+
+  @Field()
+  last!: string
+}
 
 @ObjectType()
 export class UserSchema {
@@ -6,10 +15,10 @@ export class UserSchema {
   userId!: string
 
   @Field({nullable: true})
-  first!: string
+  first?: string
 
   @Field({nullable: true})
-  last!: string
+  last?: string
 
   @Field()
   updatedAt!: Date
@@ -17,5 +26,3 @@ export class UserSchema {
   @Field()
   createdAt!: Date
 }
-
-export default UserSchema
