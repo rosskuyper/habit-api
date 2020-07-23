@@ -38,7 +38,7 @@ resource "aws_cognito_user_pool" "main" {
     name                     = "email"
     attribute_data_type      = "String"
     developer_only_attribute = false
-    mutable                  = false
+    mutable                  = true
     required                 = true
   }
 
