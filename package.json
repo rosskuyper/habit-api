@@ -3,13 +3,14 @@
   "scripts": {
     "clean": "rm -rf build",
     "build": "yarn clean; yarn tsc -p tsconfig-prod.json",
-    "dev": "ts-node-dev -r dotenv/config src/dev/server.ts"
+    "start": "ts-node-dev -r dotenv/config src/dev/server.ts"
   },
   "dependencies": {
     "@aws/dynamodb-data-mapper": "^0.7.3",
     "@aws/dynamodb-data-mapper-annotations": "^0.7.3",
     "@bugsnag/js": "^7.2.0",
     "@types/aws-lambda": "^8.10.59",
+    "@types/jsonwebtoken": "^8.5.0",
     "@types/uuid": "^8.0.0",
     "@typescript-eslint/eslint-plugin": "^3.6.1",
     "@typescript-eslint/parser": "^3.6.1",
@@ -17,11 +18,15 @@
     "aws-lambda": "^1.0.6",
     "aws-sdk": "^2.715.0",
     "class-validator": "^0.12.2",
+    "cookie": "^0.4.1",
+    "date-fns": "^2.15.0",
     "env-var": "^6.2.0",
     "eslint": "^7.5.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-import": "^2.22.0",
     "graphql": "^15.3.0",
+    "jsonwebtoken": "^8.5.1",
+    "node-fetch": "^2.6.0",
     "prettier": "^2.0.5",
     "query-string": "^6.13.1",
     "reflect-metadata": "^0.1.13",

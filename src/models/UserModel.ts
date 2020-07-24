@@ -1,9 +1,9 @@
 import {attribute, hashKey, table} from '@aws/dynamodb-data-mapper-annotations'
-import {v4 as uuidv4} from 'uuid'
+import {DDB_HABITS_TABLE} from '../config'
 
-@table('habit-api-habits')
+@table(DDB_HABITS_TABLE)
 class UserModel {
-  @hashKey({defaultProvider: () => uuidv4()})
+  @hashKey()
   userId!: string
 
   @attribute()

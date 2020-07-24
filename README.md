@@ -16,11 +16,13 @@
 - [x] Simple Project structures for GQL
 - [x] Proper Bugsnag middleware
 - [x] Local Server
-- [ ] DynamoDB / ORM abstraction
-- [ ] Stages with proper config for production
-- [ ] Improved deploy scripts (makefile? shell scripts?)
-- [ ] Terraform Modules
+- [x] DynamoDB / ORM abstraction
+- [x] Cognito User Pool
+- [ ] Auth migrations / queries
+- [ ] Authorizer APIGW middleware
+- [ ] Apple sign in
+- [ ] Terraform Modules - Cognito
+- [ ] Terraform Modules - Lambda
 - [ ] Configuration for all the things
 - [ ] Implement PR CI (linting, tests, prettier)
-- [ ] Cognito User Pool
 - [ ] Fork off template project
