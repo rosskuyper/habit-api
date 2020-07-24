@@ -1,5 +1,11 @@
 import {ApolloServer} from 'apollo-server-lambda'
-import {APIGatewayProxyCallback, APIGatewayProxyEventV2, Context as LambdaContext} from 'aws-lambda'
+import {
+  APIGatewayProxyCallback,
+  APIGatewayProxyEvent,
+  APIGatewayProxyEventV2,
+  Context as LambdaContext,
+  Callback,
+} from 'aws-lambda'
 import {serverConfig} from './apollo'
 import {marshallLambdaEvent} from './utils/apigwProxy'
 import {deferPromiseCall} from './utils/async'
@@ -17,25 +23,50 @@ const getServer = deferPromiseCall(async () => {
   return new ApolloServer(config)
 })
 
-const getHandler = deferPromiseCall(async () => {
+// const getHandler = deferPromiseCall(async () => {
+//   const server = await getServer()
+
+//   return server.createHandler({
+//     cors: {
+//       origin: '*',
+//       credentials: true,
+//     },
+//   })
+// })
+
+// const handler = async (
+//   event: APIGatewayProxyEventV2,
+//   context: LambdaContext,
+//   callback: APIGatewayProxyCallback,
+// ): Promise<void> => {
+//   const apolloHandler = await getHandler()
+
+//   apolloHandler(marshallLambdaEvent(event), context, callback)
+// }
+
+type ApolloHanlder = (event: APIGatewayProxyEvent, context: LambdaContext, callback: APIGatewayProxyCallback) => void
+
+function runApollo(event: APIGatewayProxyEvent, context: LambdaContext, apollo: ApolloHanlder) {
+  return new Promise((resolve, reject) => {
+    const callback: Callback = (error, body) => (error ? reject(error) : resolve(body))
+
+    apollo(event, context, callback)
+  })
+}
+
+export async function handler(event: APIGatewayProxyEventV2, context: LambdaContext): Promise<any> {
   const server = await getServer()
 
-  return server.createHandler({
+  const apollo = server.createHandler({
     cors: {
       origin: '*',
       credentials: true,
+      methods: 'GET, POST',
+      allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
     },
   })
-})
 
-const handler = async (
-  event: APIGatewayProxyEventV2,
-  context: LambdaContext,
-  callback: APIGatewayProxyCallback,
-): Promise<void> => {
-  const apolloHandler = await getHandler()
-
-  apolloHandler(marshallLambdaEvent(event), context, callback)
+  return await runApollo(marshallLambdaEvent(event), context, apollo)
 }
 
 export default handler
