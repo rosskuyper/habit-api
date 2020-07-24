@@ -24,6 +24,7 @@ export const serverConfig = async (): Promise<Config> => {
       return context
     },
     formatError: (err) => {
+      console.log(err)
       Bugsnag.notify(err)
       return err
     },
