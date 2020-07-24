@@ -17,6 +17,7 @@ export const serverConfig = async (): Promise<Config> => {
     schema,
     context: async (context) => {
       console.log('setup', Object.keys(context))
+      console.log('setup', context)
 
       return context
     },

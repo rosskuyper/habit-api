@@ -8,6 +8,7 @@ class AuthResolver {
   @Query(() => [SignInOption])
   async getSignInOptions(@Ctx() context: any): Promise<SignInOption[]> {
     console.log('context', Object.keys(context))
+    console.log('providers', providers)
 
     return providers
   }
