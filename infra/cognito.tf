@@ -71,9 +71,9 @@ resource "aws_cognito_user_pool" "main" {
     allow_admin_create_user_only = true
   }
 
-  # lifecycle {
-  #   ignore_changes = [schema]
-  # }
+  lifecycle {
+    ignore_changes = [schema]
+  }
 }
 
 resource "aws_cognito_user_pool_domain" "main" {
