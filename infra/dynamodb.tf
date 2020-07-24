@@ -29,11 +29,6 @@ resource "aws_dynamodb_table" "habit_auth" {
     type = "S"
   }
 
-  attribute {
-    name = "expiresAt"
-    type = "N"
-  }
-
   ttl {
     enabled        = true
     attribute_name = "expiresAt"
