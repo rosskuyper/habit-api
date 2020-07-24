@@ -17,12 +17,12 @@ export const serverConfig = async (): Promise<Config> => {
     schema,
     playground: true,
     introspection: true,
-    context: async (context) => {
-      console.log('setup', Object.keys(context))
-      console.log('setup', context)
+    // context: async (context) => {
+    //   console.log('setup', Object.keys(context))
+    //   console.log('setup', context)
 
-      return context
-    },
+    //   return context
+    // },
     formatError: (err) => {
       console.log(err)
       Bugsnag.notify(err)
