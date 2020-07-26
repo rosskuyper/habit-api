@@ -1,19 +1,39 @@
 import {Config} from 'apollo-server-lambda'
+import {ApolloServerPlugin, BaseContext, GraphQLRequestContextWillSendResponse} from 'apollo-server-plugin-base'
+import {APIGatewayProxyEvent, Context as LambdaContext} from 'aws-lambda'
 import {buildSchema} from 'type-graphql'
 import AuthResolver from './resolvers/AuthResolver'
 import UserResolver from './resolvers/UserResolver'
 import Bugsnag from './utils/bugsnag'
-import {ApolloServerPlugin, GraphQLRequestContextWillSendResponse, BaseContext} from 'apollo-server-plugin-base'
-import {v4} from 'uuid'
 
 const headerPlugin: ApolloServerPlugin = {
   requestDidStart: () => {
     return {
       willSendResponse: (requestContext: GraphQLRequestContextWillSendResponse<BaseContext>): void => {
-        console.log('requestContext', requestContext)
+        if (requestContext.response.http) {
+          for (const [headerKey, headerValue] of requestContext.context.additionalResponseHeaders.entries()) {
+            requestContext.response.http.headers.set(headerKey, headerValue)
+          }
+        }
+
+        console.log('requestContext.response.http', requestContext.response.http)
+        console.log(
+          'requestContext.context.additionalResponseHeaders',
+          requestContext.context.additionalResponseHeaders,
+        )
       },
     }
   },
+}
+
+export type RecievedContext = {
+  event: APIGatewayProxyEvent
+  lambdaContext: LambdaContext
+}
+
+export type Context = RecievedContext & {
+  // This will let us add additional response headers from within resolvers
+  additionalResponseHeaders: Map<string, string>
 }
 
 export const serverConfig = async (): Promise<Config> => {
@@ -32,15 +52,11 @@ export const serverConfig = async (): Promise<Config> => {
 
     plugins: [headerPlugin],
 
-    context: async (context) => {
-      context.headerBag = {
-        uuid: v4(),
+    context: async (context: RecievedContext): Promise<Context> => {
+      return {
+        ...context,
+        additionalResponseHeaders: new Map(),
       }
-
-      console.log('setup', Object.keys(context))
-      console.log('setup', context)
-
-      return context
     },
     formatError: (err) => {
       console.log(err)

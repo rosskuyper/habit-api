@@ -2,13 +2,17 @@ import {Arg, Mutation, Query, Resolver, Ctx} from 'type-graphql'
 import {CognitoJWTSet, SignInOption} from '../schemas/AuthSchema'
 import {swapCodeForTokens} from '../utils/cognito/tokenSwap'
 import {providers} from '../utils/cognito/providers'
+import {Context} from '../apollo'
 
 @Resolver()
 class AuthResolver {
   @Query(() => [SignInOption])
-  async getSignInOptions(@Ctx() context: any): Promise<SignInOption[]> {
-    console.log('context', Object.keys(context))
+  async getSignInOptions(@Ctx() context: Context): Promise<SignInOption[]> {
+    console.log('contextKeys', Object.keys(context))
+    console.log('context', context)
     console.log('providers', providers)
+
+    context.additionalResponseHeaders.set('x-yo', 'lo')
 
     return providers
   }
