@@ -1,11 +1,5 @@
 import {ApolloServer} from 'apollo-server-lambda'
-import {
-  APIGatewayProxyCallback,
-  APIGatewayProxyEvent,
-  APIGatewayProxyEventV2,
-  Context as LambdaContext,
-  Callback,
-} from 'aws-lambda'
+import {APIGatewayProxyEventV2, Context as LambdaContext, Callback} from 'aws-lambda'
 import {serverConfig} from './apollo'
 import {marshallLambdaEvent} from './utils/apigwProxy'
 import {deferPromiseCall} from './utils/async'
@@ -23,41 +17,10 @@ const getServer = deferPromiseCall(async () => {
   return new ApolloServer(config)
 })
 
-// const getHandler = deferPromiseCall(async () => {
-//   const server = await getServer()
-
-//   return server.createHandler({
-//     cors: {
-//       origin: '*',
-//       credentials: true,
-//     },
-//   })
-// })
-
-// const handler = async (
-//   event: APIGatewayProxyEventV2,
-//   context: LambdaContext,
-//   callback: APIGatewayProxyCallback,
-// ): Promise<void> => {
-//   const apolloHandler = await getHandler()
-
-//   apolloHandler(marshallLambdaEvent(event), context, callback)
-// }
-
-type ApolloHanlder = (event: APIGatewayProxyEvent, context: LambdaContext, callback: APIGatewayProxyCallback) => void
-
-function runApollo(event: APIGatewayProxyEvent, context: LambdaContext, apollo: ApolloHanlder) {
-  return new Promise((resolve, reject) => {
-    const callback: Callback = (error, body) => (error ? reject(error) : resolve(body))
-
-    apollo(event, context, callback)
-  })
-}
-
-export async function handler(event: APIGatewayProxyEventV2, context: LambdaContext): Promise<any> {
+const getHandler = deferPromiseCall(async () => {
   const server = await getServer()
 
-  const apollo = server.createHandler({
+  return server.createHandler({
     cors: {
       origin: '*',
       credentials: true,
@@ -65,8 +28,23 @@ export async function handler(event: APIGatewayProxyEventV2, context: LambdaCont
       allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
     },
   })
+})
 
-  return await runApollo(marshallLambdaEvent(event), context, apollo)
+/**
+ * apollo-server-lambda internally uses the callback api and sets callbackWaitsForEmptyEventLoop to false
+ * which can lead to the lambda function exiting early and `null` being returned to the user.
+ *
+ * Here we wrap this in a promise so that we can use our async context which will only fully resolve
+ * once the apollo handler has called the callback.
+ */
+export async function handler(event: APIGatewayProxyEventV2, context: LambdaContext): Promise<void> {
+  const apolloHandler = await getHandler()
+
+  return new Promise((resolve, reject) => {
+    const callback: Callback = (error, body) => (error ? reject(error) : resolve(body))
+
+    apolloHandler(marshallLambdaEvent(event), context, callback)
+  })
 }
 
 export default handler
