@@ -41,7 +41,15 @@ export async function handler(event: APIGatewayProxyEventV2, context: LambdaCont
   const apolloHandler = await getHandler()
 
   return new Promise((resolve, reject) => {
-    const callback: Callback = (error, body) => (error ? reject(error) : resolve(body))
+    const callback: Callback = (error, body) => {
+      if (error) {
+        reject(error)
+      }
+
+      console.log('body', body)
+
+      resolve(body)
+    }
 
     apolloHandler(marshallLambdaEvent(event), context, callback)
   })
