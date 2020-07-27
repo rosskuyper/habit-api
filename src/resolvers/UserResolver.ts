@@ -1,12 +1,12 @@
 import {Arg, Mutation, Query, Resolver} from 'type-graphql'
 import {UserSchema, AddUserInput} from '../schemas/UserSchema'
-import {addUser, getUser} from '../mappers/UserMapper'
+import {addUser, queryUser} from '../mappers/UserMapper'
 
 @Resolver(UserSchema)
 class UserResolver {
   @Query(() => UserSchema)
-  async getUser(@Arg('userId') userId: string): Promise<UserSchema> {
-    return getUser(userId)
+  async getUser(@Arg('sub') sub: string): Promise<UserSchema> {
+    return queryUser(sub)
   }
 
   @Mutation(() => UserSchema)

@@ -4,4 +4,4 @@
 import 'reflect-metadata'
 import './utils/bugsnag'
 
-export {default as handler} from './handler'
+export {handler} from './handler'

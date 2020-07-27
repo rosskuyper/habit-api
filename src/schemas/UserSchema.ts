@@ -7,12 +7,18 @@ export class AddUserInput {
 
   @Field()
   last!: string
+
+  @Field()
+  email!: string
 }
 
 @ObjectType()
 export class UserSchema {
   @Field(() => ID)
-  userId!: string
+  sub!: string
+
+  @Field()
+  email!: string
 
   @Field({nullable: true})
   first?: string

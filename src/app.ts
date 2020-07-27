@@ -1,15 +1,21 @@
 import {ApolloServer} from 'apollo-server-express'
+import cookieParser from 'cookie-parser'
 import express from 'express'
 import {buildSchema} from 'type-graphql'
 import {CORS_ALLOWED_ORIGINS, OUTPUT_ERRORS_TO_CONSOLE, PLAYGROUND_ENABLED} from './config'
 import AuthResolver from './resolvers/AuthResolver'
 import UserResolver from './resolvers/UserResolver'
-import {Context, ExpressApolloBundle, playground} from './utils/apollo'
+import {AppContext, ExpressApolloBundle, ExpressContext, playground} from './utils/apollo'
+import {customAuthChecker, decodeTokenSet} from './utils/auth'
 import Bugsnag from './utils/bugsnag'
 import {generateOriginConfig} from './utils/http'
+import {getTokenSet} from './mappers/TokenMapper'
+import {getUser} from './mappers/UserMapper'
 
 const initExpress = async (): Promise<ExpressApolloBundle> => {
   const app = express()
+
+  app.use(cookieParser())
 
   const schema = await buildSchema({
     resolvers: [
@@ -17,6 +23,8 @@ const initExpress = async (): Promise<ExpressApolloBundle> => {
       UserResolver,
       AuthResolver,
     ],
+
+    authChecker: customAuthChecker,
   })
 
   const apolloServer = new ApolloServer({
@@ -25,7 +33,19 @@ const initExpress = async (): Promise<ExpressApolloBundle> => {
     introspection: PLAYGROUND_ENABLED,
 
     // We need to define this to actually be given the items from express
-    context: (context: Context): Context => context,
+    context: async (context: ExpressContext): Promise<AppContext> => {
+      const tokenSet = context.req?.cookies?.access ? await getTokenSet(context.req.cookies.access) : undefined
+
+      const decodedTokenSet = tokenSet && decodeTokenSet(tokenSet)
+
+      const user = decodedTokenSet && (await getUser(decodedTokenSet))
+
+      return {
+        ...context,
+        user,
+        tokenSet,
+      }
+    },
 
     // Error reporting happens here according to apollo
     formatError: (err) => {

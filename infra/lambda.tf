@@ -113,9 +113,6 @@ resource "aws_lambda_function" "habit_graphql_main" {
       DDB_USERS_TABLE  = aws_dynamodb_table.habit_users.id,
       DDB_TOKENS_TABLE = aws_dynamodb_table.habit_tokens.id,
 
-      DDB_HABITS_TABLE = aws_dynamodb_table.habit_users.id,
-      DDB_AUTH_TABLE   = aws_dynamodb_table.habit_tokens.id,
-
       AUTH_COGNITO_CLIENT_ID        = aws_cognito_user_pool_client.main.id
       AUTH_COGNITO_CLIENT_SECRET    = aws_cognito_user_pool_client.main.client_secret
       AUTH_COGNITO_AUTHORIZE_DOMAIN = "${local.domain_name}.auth.${data.aws_region.current.name}.amazoncognito.com"

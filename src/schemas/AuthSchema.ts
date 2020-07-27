@@ -1,5 +1,8 @@
 import {ObjectType, Field, InputType} from 'type-graphql'
 
+/********************
+ * Objects
+ ********************/
 @ObjectType()
 export class SignInOption {
   @Field()
@@ -21,15 +24,6 @@ export class SignInOption {
   identityProvider!: string
 }
 
-@InputType()
-export class CodeSwapInput {
-  @Field()
-  clientId!: string
-
-  @Field()
-  code!: string
-}
-
 @ObjectType()
 export class CognitoJWTSet {
   @Field()
@@ -37,4 +31,17 @@ export class CognitoJWTSet {
 
   @Field()
   accessToken!: string
+}
+
+/********************
+ * Inputs
+ ********************/
+
+@InputType()
+export class CodeSwapInput {
+  @Field()
+  clientId!: string
+
+  @Field()
+  code!: string
 }

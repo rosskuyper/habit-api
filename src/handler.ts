@@ -1,9 +1,10 @@
-import awsServerlessExpress from 'aws-serverless-express'
-import {deferPromiseCall} from './utils/async'
-import initExpress, {ExpressApolloBundle} from './app'
 import {APIGatewayProxyEventV2, Context as LambdaContext} from 'aws-lambda'
-import {marshallLambdaEvent} from './utils/apigwProxy'
+import awsServerlessExpress from 'aws-serverless-express'
 import {Server} from 'http'
+import initExpress from './app'
+import {marshallLambdaEvent} from './utils/apigwProxy'
+import {ExpressApolloBundle} from './utils/apollo'
+import {deferPromiseCall} from './utils/async'
 
 type AppServerBundle = ExpressApolloBundle & {
   serverlessServer: Server

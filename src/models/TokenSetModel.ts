@@ -1,9 +1,9 @@
 import {attribute, hashKey, table} from '@aws/dynamodb-data-mapper-annotations'
 import {addDays} from 'date-fns'
-import {DDB_AUTH_TABLE} from '../config'
+import {DDB_TOKENS_TABLE} from '../config'
 
-@table(DDB_AUTH_TABLE)
-class AuthModel {
+@table(DDB_TOKENS_TABLE)
+class TokenSet {
   @hashKey()
   accessToken!: string
 
@@ -26,4 +26,4 @@ class AuthModel {
   expiresAt!: Date
 }
 
-export default AuthModel
+export default TokenSet

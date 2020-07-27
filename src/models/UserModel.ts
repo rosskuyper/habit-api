@@ -1,13 +1,16 @@
 import {attribute, hashKey, table} from '@aws/dynamodb-data-mapper-annotations'
-import {DDB_HABITS_TABLE} from '../config'
+import {DDB_USERS_TABLE} from '../config'
 
-@table(DDB_HABITS_TABLE)
+@table(DDB_USERS_TABLE)
 class UserModel {
   @hashKey()
-  userId!: string
+  sub!: string
 
   @attribute()
   completed?: boolean
+
+  @attribute()
+  email!: string
 
   @attribute()
   first?: string

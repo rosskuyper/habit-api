@@ -1,39 +1,10 @@
-import jwt from 'jsonwebtoken'
 import fetch from 'node-fetch'
 import queryString from 'query-string'
 import {AUTH_COGNITO_CLIENT_SECRET} from '../../config'
-import {storeTokenSet} from '../../mappers/AuthMapper'
+import {storeTokenSet} from '../../mappers/TokenMapper'
 import {providers} from './providers'
-
-export type TokenSet = {
-  accessToken: string
-  refreshToken: string
-  idToken: string
-}
-
-function verifyTokenResult(result: {access_token: string; refresh_token: string; id_token: string}) {
-  if (!result) {
-    throw new Error('Empty Cognito token payload')
-  }
-
-  const {access_token: accessToken, refresh_token: refreshToken, id_token: idToken} = result
-
-  if (!accessToken || !refreshToken || !idToken) {
-    throw new Error('Invalid Cognito token payload')
-  }
-
-  const parsedIdToken = jwt.decode(idToken)
-
-  if (!parsedIdToken) {
-    throw new Error('Error decoding token payload.')
-  }
-
-  return {
-    accessToken,
-    refreshToken,
-    idToken,
-  }
-}
+import TokenSet from '../../models/TokenSetModel'
+import {verifyTokenResult} from '../auth'
 
 export const swapCodeForTokens = async (code: string, clientId: string): Promise<TokenSet> => {
   const provider = providers.find((provider) => provider.clientId === clientId)
@@ -65,7 +36,5 @@ export const swapCodeForTokens = async (code: string, clientId: string): Promise
 
   const tokenSet = verifyTokenResult(responseBody)
 
-  await storeTokenSet(tokenSet)
-
-  return tokenSet
+  return await storeTokenSet(tokenSet)
 }

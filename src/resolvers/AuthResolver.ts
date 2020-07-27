@@ -1,15 +1,22 @@
-import {Arg, Ctx, Mutation, Query, Resolver} from 'type-graphql'
-import {Context} from '../utils/apollo'
+import {Arg, Ctx, Mutation, Query, Resolver, Authorized} from 'type-graphql'
+import {AppContext, AuthorizedAppContext} from '../utils/apollo'
 import {CognitoJWTSet, SignInOption, CodeSwapInput} from '../schemas/AuthSchema'
 import {providers} from '../utils/cognito/providers'
 import {swapCodeForTokens} from '../utils/cognito/tokenSwap'
 import {IS_LOCAL} from '../config'
+import {UserSchema} from '../schemas/UserSchema'
 
 @Resolver()
 class AuthResolver {
   @Query(() => [SignInOption])
   async getSignInOptions(): Promise<SignInOption[]> {
     return providers
+  }
+
+  @Authorized()
+  @Query(() => UserSchema)
+  async me(@Ctx() context: AuthorizedAppContext): Promise<UserSchema> {
+    return context.user
   }
 
   @Mutation(() => CognitoJWTSet)
@@ -24,12 +31,12 @@ class AuthResolver {
 
   @Mutation(() => Boolean)
   async swapCodeForTokensCookie(
-    @Ctx() context: Context,
+    @Ctx() context: AppContext,
     @Arg('payload') {code, clientId}: CodeSwapInput,
   ): Promise<boolean> {
     const tokenPayload = await swapCodeForTokens(code, clientId)
 
-    context.res.cookie('id', tokenPayload.accessToken, {
+    context.res.cookie('access', tokenPayload.accessToken, {
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days (token expires earlier but can be refreshed)
       sameSite: 'strict',
