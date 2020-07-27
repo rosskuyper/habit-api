@@ -45,6 +45,17 @@ data "aws_iam_policy_document" "habit_graphql_main" {
 
   statement {
     actions = [
+      "dynamodb:*",
+    ]
+
+    resources = [
+      aws_dynamodb_table.habit_users.arn,
+      aws_dynamodb_table.habit_users.arn,
+    ]
+  }
+
+  statement {
+    actions = [
       "ssm:GetParameter",
       "ssm:GetParameters",
     ]
@@ -99,8 +110,11 @@ resource "aws_lambda_function" "habit_graphql_main" {
 
       BUGSNAG_API_KEY = "06e5d5340f1c75993d1c33e3c311ffc5",
 
-      DDB_HABITS_TABLE = aws_dynamodb_table.habits.id,
-      DDB_AUTH_TABLE   = aws_dynamodb_table.habit_auth.id,
+      DDB_USERS_TABLE  = aws_dynamodb_table.habit_users.id,
+      DDB_TOKENS_TABLE = aws_dynamodb_table.habit_tokens.id,
+
+      DDB_HABITS_TABLE = aws_dynamodb_table.habit_users.id,
+      DDB_AUTH_TABLE   = aws_dynamodb_table.habit_tokens.id,
 
       AUTH_COGNITO_CLIENT_ID        = aws_cognito_user_pool_client.main.id
       AUTH_COGNITO_CLIENT_SECRET    = aws_cognito_user_pool_client.main.client_secret

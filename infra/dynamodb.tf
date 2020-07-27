@@ -1,7 +1,7 @@
-resource "aws_dynamodb_table" "habits" {
-  name         = "habit-api-habits"
+resource "aws_dynamodb_table" "habit_users" {
+  name         = "habit-api-users"
   billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "userId"
+  hash_key     = "sub"
 
   server_side_encryption {
     enabled     = true
@@ -9,13 +9,13 @@ resource "aws_dynamodb_table" "habits" {
   }
 
   attribute {
-    name = "userId"
+    name = "sub"
     type = "S"
   }
 }
 
-resource "aws_dynamodb_table" "habit_auth" {
-  name         = "habit-api-auth"
+resource "aws_dynamodb_table" "habit_tokens" {
+  name         = "habit-api-tokens"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "accessToken"
 
