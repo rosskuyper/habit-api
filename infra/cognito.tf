@@ -3,6 +3,7 @@ locals {
   client_id               = "1045305354627-8dff4jbap0sgmolhqq0derjcqjk06h0v.apps.googleusercontent.com"
   encrypted_client_secret = "AQICAHhOyM5btVbfvpZQ/4Z6nIPAoZ4eCTd0WLRyE39dZQLJxAEdvU6fPXHwEnCPS9qx2904AAAAdjB0BgkqhkiG9w0BBwagZzBlAgEAMGAGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMa7S92gc03Jajy6DkAgEQgDMMXd95ogFUZl+qNEfwLxuygVtb18Mv0FzwRBt2h6Ge9CSIB1mZIyQ+1yzODKLyDDntjaM="
   callback_urls = [
+    "https://www.habitualizer.com/oauth/callback",
     "https://habitualizer.com/oauth/callback",
     "http://localhost:3000/oauth/callback",
   ]

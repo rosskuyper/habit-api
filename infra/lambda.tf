@@ -93,15 +93,19 @@ resource "aws_lambda_function" "habit_graphql_main" {
 
   environment {
     variables = {
-      NODE_ENV         = "production",
-      BUGSNAG_API_KEY  = "06e5d5340f1c75993d1c33e3c311ffc5",
+      NODE_ENV = "production",
+
+      BUGSNAG_API_KEY = "06e5d5340f1c75993d1c33e3c311ffc5",
+
       DDB_HABITS_TABLE = aws_dynamodb_table.habits.id,
       DDB_AUTH_TABLE   = aws_dynamodb_table.habit_auth.id,
 
       AUTH_COGNITO_CLIENT_ID        = aws_cognito_user_pool_client.main.id
       AUTH_COGNITO_CLIENT_SECRET    = aws_cognito_user_pool_client.main.client_secret
       AUTH_COGNITO_AUTHORIZE_DOMAIN = "${local.domain_name}.auth.${data.aws_region.current.name}.amazoncognito.com"
-      AUTH_COGNITO_REDIRECT_URI     = "https://habitualizer.com/oauth/callback"
+      AUTH_COGNITO_REDIRECT_URI     = "https://www.habitualizer.com/oauth/callback"
+
+      CORS_ALLOWED_ORIGINS = "https://habitualizer.com, https://www.habitualizer.com"
     }
   }
 }

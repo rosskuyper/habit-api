@@ -1,39 +1,20 @@
-import {Config} from 'apollo-server-lambda'
-import {ApolloServerPlugin, BaseContext, GraphQLRequestContextWillSendResponse} from 'apollo-server-plugin-base'
-import {APIGatewayProxyEvent, Context as LambdaContext} from 'aws-lambda'
+import express from 'express'
+import {Config} from 'apollo-server'
 import {buildSchema} from 'type-graphql'
 import AuthResolver from './resolvers/AuthResolver'
 import UserResolver from './resolvers/UserResolver'
 import Bugsnag from './utils/bugsnag'
+import {OUTPUT_ERRORS_TO_CONSOLE, PLAYGROUND_ENABLED} from './config'
 
-const headerPlugin: ApolloServerPlugin = {
-  requestDidStart: () => {
-    return {
-      willSendResponse: (requestContext: GraphQLRequestContextWillSendResponse<BaseContext>): void => {
-        if (requestContext.response.http) {
-          for (const [headerKey, headerValue] of requestContext.context.additionalResponseHeaders.entries()) {
-            requestContext.response.http.headers.set(headerKey, headerValue)
-          }
-        }
+export type Context = {
+  req: express.Request
+  res: express.Response
+}
 
-        console.log('requestContext.response.http', requestContext.response.http)
-        console.log(
-          'requestContext.context.additionalResponseHeaders',
-          requestContext.context.additionalResponseHeaders,
-        )
-      },
-    }
+const playground = {
+  settings: {
+    'request.credentials': 'include',
   },
-}
-
-export type RecievedContext = {
-  event: APIGatewayProxyEvent
-  lambdaContext: LambdaContext
-}
-
-export type Context = RecievedContext & {
-  // This will let us add additional response headers from within resolvers
-  additionalResponseHeaders: Map<string, string>
 }
 
 export const serverConfig = async (): Promise<Config> => {
@@ -47,19 +28,18 @@ export const serverConfig = async (): Promise<Config> => {
 
   return {
     schema,
-    playground: true,
-    introspection: true,
+    playground: PLAYGROUND_ENABLED && playground,
+    introspection: PLAYGROUND_ENABLED,
 
-    plugins: [headerPlugin],
+    // We need to define this to actually be given the items from express
+    context: (context: Context): Context => context,
 
-    context: async (context: RecievedContext): Promise<Context> => {
-      return {
-        ...context,
-        additionalResponseHeaders: new Map(),
-      }
-    },
+    // Error reporting happens here according to apollo
     formatError: (err) => {
-      console.log(err)
+      if (OUTPUT_ERRORS_TO_CONSOLE) {
+        console.log(err)
+      }
+
       Bugsnag.notify(err)
       return err
     },
