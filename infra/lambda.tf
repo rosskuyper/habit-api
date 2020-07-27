@@ -93,7 +93,9 @@ resource "aws_lambda_function" "habit_graphql_main" {
 
   environment {
     variables = {
-      NODE_ENV = "production",
+      NODE_ENV                 = "production",
+      OUTPUT_ERRORS_TO_CONSOLE = "true"
+      PLAYGROUND_ENABLED       = "true"
 
       BUGSNAG_API_KEY = "06e5d5340f1c75993d1c33e3c311ffc5",
 

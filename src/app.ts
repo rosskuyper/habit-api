@@ -1,19 +1,42 @@
-import express from 'express'
 import {ApolloServer} from 'apollo-server-express'
-import {serverConfig} from './apollo'
+import express from 'express'
+import {buildSchema} from 'type-graphql'
+import {CORS_ALLOWED_ORIGINS, OUTPUT_ERRORS_TO_CONSOLE, PLAYGROUND_ENABLED} from './config'
+import AuthResolver from './resolvers/AuthResolver'
+import UserResolver from './resolvers/UserResolver'
+import {Context, ExpressApolloBundle, playground} from './utils/apollo'
+import Bugsnag from './utils/bugsnag'
 import {generateOriginConfig} from './utils/http'
-import {CORS_ALLOWED_ORIGINS} from './config'
-
-export type ExpressApolloBundle = {
-  apolloServer: ApolloServer
-  app: express.Express
-}
 
 const initExpress = async (): Promise<ExpressApolloBundle> => {
-  const apolloConfig = await serverConfig()
-
   const app = express()
-  const apolloServer = new ApolloServer(apolloConfig)
+
+  const schema = await buildSchema({
+    resolvers: [
+      //
+      UserResolver,
+      AuthResolver,
+    ],
+  })
+
+  const apolloServer = new ApolloServer({
+    schema,
+    playground: PLAYGROUND_ENABLED && playground,
+    introspection: PLAYGROUND_ENABLED,
+
+    // We need to define this to actually be given the items from express
+    context: (context: Context): Context => context,
+
+    // Error reporting happens here according to apollo
+    formatError: (err) => {
+      if (OUTPUT_ERRORS_TO_CONSOLE) {
+        console.log(err)
+      }
+
+      Bugsnag.notify(err)
+      return err
+    },
+  })
 
   apolloServer.applyMiddleware({
     app,

@@ -1,5 +1,5 @@
 import {Arg, Ctx, Mutation, Query, Resolver} from 'type-graphql'
-import {Context} from '../apollo'
+import {Context} from '../utils/apollo'
 import {CognitoJWTSet, SignInOption, CodeSwapInput} from '../schemas/AuthSchema'
 import {providers} from '../utils/cognito/providers'
 import {swapCodeForTokens} from '../utils/cognito/tokenSwap'
