@@ -1,14 +1,17 @@
 import {attribute, hashKey, table} from '@aws/dynamodb-data-mapper-annotations'
 import {addDays} from 'date-fns'
-import {DDB_TOKENS_TABLE} from '../config'
+import {DDB_PRIMARY_TABLE} from '../config'
 
-@table(DDB_TOKENS_TABLE)
+@table(DDB_PRIMARY_TABLE)
 class TokenSet {
   @hashKey()
-  accessToken!: string
+  id!: string
 
   @attribute()
   idToken!: string
+
+  @attribute()
+  accessToken!: string
 
   @attribute()
   refreshToken!: string

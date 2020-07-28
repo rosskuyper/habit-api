@@ -17,7 +17,7 @@ export const queryUser = async (userId: string): Promise<UserSchema> => {
 
 export const getUser = async ({idToken}: DecodedTokenSet): Promise<UserSchema> => {
   const user = Object.assign(new UserModel(), {
-    sub: idToken.sub,
+    id: idToken.sub,
     email: idToken.email,
   })
 

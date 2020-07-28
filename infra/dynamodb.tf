@@ -1,7 +1,11 @@
-resource "aws_dynamodb_table" "habit_users" {
-  name         = "habit-api-users"
-  billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "sub"
+resource "aws_dynamodb_table" "habit_primary" {
+  name           = "habit-api-primary"
+  billing_mode   = "PROVISIONED"
+  read_capacity  = 10
+  write_capacity = 10
+
+  hash_key  = "id"
+  range_key = "sortKey"
 
   server_side_encryption {
     enabled     = true
@@ -9,28 +13,12 @@ resource "aws_dynamodb_table" "habit_users" {
   }
 
   attribute {
-    name = "sub"
+    name = "id"
     type = "S"
-  }
-}
-
-resource "aws_dynamodb_table" "habit_tokens" {
-  name         = "habit-api-tokens"
-  billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "accessToken"
-
-  server_side_encryption {
-    enabled     = true
-    kms_key_arn = data.aws_kms_key.habit_ddb.arn
   }
 
   attribute {
-    name = "accessToken"
+    name = "sortKey"
     type = "S"
-  }
-
-  ttl {
-    enabled        = true
-    attribute_name = "expiresAt"
   }
 }

@@ -15,7 +15,7 @@ export class AddUserInput {
 @ObjectType()
 export class UserSchema {
   @Field(() => ID)
-  sub!: string
+  id!: string
 
   @Field()
   email!: string
