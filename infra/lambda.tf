@@ -111,6 +111,8 @@ resource "aws_lambda_function" "habit_graphql_main" {
 
       DDB_PRIMARY_TABLE = aws_dynamodb_table.habit_primary.id
 
+      AUTH_COGNITO_USER_POOL_ID     = aws_cognito_user_pool.main.id
+      AUTH_COGNITO_USER_POOL_REGION = data.aws_region.current.name
       AUTH_COGNITO_CLIENT_ID        = aws_cognito_user_pool_client.main.id
       AUTH_COGNITO_CLIENT_SECRET    = aws_cognito_user_pool_client.main.client_secret
       AUTH_COGNITO_AUTHORIZE_DOMAIN = "${local.domain_name}.auth.${data.aws_region.current.name}.amazoncognito.com"
