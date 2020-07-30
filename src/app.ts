@@ -44,6 +44,7 @@ const initExpress = async (): Promise<ExpressApolloBundle> => {
       credentials: true,
       methods: 'GET, POST',
       allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept',
+      maxAge: 84600,
     },
   })
 
