@@ -75,9 +75,15 @@ const parseRawQueryString = (rawQueryString: string): ParsedQueryParams => {
 export const marshallLambdaEvent = (event: APIGatewayProxyEventV2): APIGatewayProxyEvent => {
   const {queryStringParameters, multiValueQueryStringParameters} = parseRawQueryString(event.rawQueryString)
 
+  const headers = {...event.headers}
+
+  if (event.cookies) {
+    headers.cookie = event.cookies.join('; ')
+  }
+
   return {
     body: event.body || null,
-    headers: event.headers,
+    headers,
     multiValueHeaders: parseMultiValueHeaders(event.headers),
     httpMethod: event.requestContext.http.method,
     isBase64Encoded: event.isBase64Encoded,
