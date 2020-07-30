@@ -51,6 +51,9 @@ export type AccessToken = BaseToken & {
 export type IdToken = BaseToken & {
   token_use: 'id'
   email: string
+  family_name: string
+  given_name: string
+  nonce: string
   aud: string
   at_hash: string
   identities: CognitoIdentity[]

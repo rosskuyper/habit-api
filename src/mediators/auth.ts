@@ -1,9 +1,17 @@
 import {swapCodeForTokens} from '../utils/cognito/tokenSwap'
 import {DecodedTokenSet, verifyTokenSet} from '../utils/cognito/jwt'
-import {storeTokenSet} from '../mappers/AuthMapper'
+import {storeTokenSet, storeUser} from '../mappers/AuthMapper'
 import {getProvider} from '../config/identityProviders'
+import TokenModel from '../models/TokenModel'
+import UserModel from '../models/UserModel'
 
-export const processLoginPayload = async (code: string, clientId: string): Promise<DecodedTokenSet> => {
+type loginResult = {
+  tokenSet: DecodedTokenSet
+  user: UserModel
+  token: TokenModel
+}
+
+export const processLoginPayload = async (code: string, clientId: string): Promise<loginResult> => {
   const {provider, secrets} = getProvider(clientId)
 
   const rawTokenSet = await swapCodeForTokens(code, {
@@ -18,16 +26,23 @@ export const processLoginPayload = async (code: string, clientId: string): Promi
     authorizedAudiences: [provider.clientId],
   })
 
-  await storeTokenSet({
-    accessToken: decodedTokenSet.original.accessToken,
-    refreshToken: decodedTokenSet.original.refreshToken,
-    user: {
+  const [user, token] = await Promise.all([
+    storeUser({
       subId: decodedTokenSet.accessToken.sub,
       email: decodedTokenSet.idToken.email,
-      first: '',
-      last: '',
-    },
-  })
+      first: decodedTokenSet.idToken.given_name,
+      last: decodedTokenSet.idToken.family_name,
+    }),
+    storeTokenSet({
+      accessToken: decodedTokenSet.original.accessToken,
+      refreshToken: decodedTokenSet.original.refreshToken,
+      subId: decodedTokenSet.accessToken.sub,
+    }),
+  ])
 
-  return decodedTokenSet
+  return {
+    tokenSet: decodedTokenSet,
+    user,
+    token,
+  }
 }
