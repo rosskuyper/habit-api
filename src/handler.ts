@@ -27,8 +27,5 @@ const getAppServerBundle = deferPromiseCall(
 export async function handler(event: APIGatewayProxyEventV2, context: LambdaContext): Promise<Response> {
   const {serverlessServer} = await getAppServerBundle()
 
-  console.log('event', event)
-  console.log('marshalledEvent', marshallLambdaEvent(event))
-
   return awsServerlessExpress.proxy(serverlessServer, marshallLambdaEvent(event), context, 'PROMISE').promise
 }
