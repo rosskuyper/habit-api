@@ -1,15 +1,10 @@
 import {ApolloServer} from 'apollo-server-express'
 import express from 'express'
 import {AuthChecker} from 'type-graphql'
-import {AccessToken, verifyToken} from '../utils/cognito/jwt'
-import {logHandledError} from '../utils/log'
-import {baseCookieOpts} from './cookies'
-import {authorizedClientIds, authorizedIssuers} from './identityProviders'
-
-const verifyOpts = {
-  authorizedIssuers,
-  authorizedAudiences: authorizedClientIds,
-}
+import {AccessToken, verifyToken} from '../utils/jwt'
+import {logHandledError} from './log'
+import {baseCookieOpts} from '../config/cookies'
+import {authorizedClientIds, authorizedIssuers} from '../config/identityProviders'
 
 export type ExpressContext = {
   req: express.Request
@@ -43,8 +38,13 @@ export const customAuthChecker: AuthChecker<AppContext> = async ({context}) => {
 }
 
 /**
- *
+ * Middleware to create the request context
  */
+const verifyOpts = {
+  authorizedIssuers,
+  authorizedAudiences: authorizedClientIds,
+}
+
 export const generateRequestContext = async (context: ExpressContext): Promise<AppContext> => {
   try {
     const accessToken = context.req.cookies?.access

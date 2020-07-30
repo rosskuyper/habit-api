@@ -1,5 +1,5 @@
-import {swapCodeForTokens} from '../utils/cognito/tokenSwap'
-import {DecodedTokenSet, verifyTokenSet} from '../utils/cognito/jwt'
+import {swapCodeForTokens} from '../utils/oauth'
+import {DecodedTokenSet, verifyTokenSet} from '../utils/jwt'
 import {storeTokenSet, storeUser} from '../mappers/AuthMapper'
 import {getProvider} from '../config/identityProviders'
 import TokenModel from '../models/TokenModel'

@@ -1,6 +1,6 @@
 import TokenModel, {forgeToken} from '../models/TokenModel'
 import UserModel, {forgeUser, forgeUserForStore} from '../models/UserModel'
-import {dynamoDbMapper} from '../utils/dynamodb'
+import {dynamoDbMapper} from '../services/dynamodb'
 
 export type StoreTokenSetParams = {
   accessToken: string

@@ -1,5 +1,5 @@
 import {Arg, Authorized, Ctx, Mutation, Query, Resolver} from 'type-graphql'
-import {AppContext, AuthorizedAppContext} from '../config/apollo'
+import {AppContext, AuthorizedAppContext} from '../services/apollo'
 import {setCookieConfig} from '../config/cookies'
 import {providers} from '../config/identityProviders'
 import {processLoginPayload} from '../mediators/auth'

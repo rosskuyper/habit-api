@@ -1,7 +1,7 @@
 import jwt, {Algorithm} from 'jsonwebtoken'
 import fetch from 'node-fetch'
 import jwkToPem, {JWK} from 'jwk-to-pem'
-import {createCache} from '../cache'
+import {createCache} from './cache'
 
 /********************************
  * Types

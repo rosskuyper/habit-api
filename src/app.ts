@@ -2,11 +2,11 @@ import {ApolloServer} from 'apollo-server-express'
 import cookieParser from 'cookie-parser'
 import express from 'express'
 import {buildSchema} from 'type-graphql'
-import {customAuthChecker, ExpressApolloBundle, generateRequestContext, playground} from './config/apollo'
+import {customAuthChecker, ExpressApolloBundle, generateRequestContext, playground} from './services/apollo'
 import {CORS_ALLOWED_ORIGINS, PLAYGROUND_ENABLED} from './config/env'
 import AuthResolver from './resolvers/AuthResolver'
 import {generateOriginConfig} from './utils/http'
-import {logHandledError} from './utils/log'
+import {logHandledError} from './services/log'
 
 const initExpress = async (): Promise<ExpressApolloBundle> => {
   const app = express()
