@@ -1,5 +1,5 @@
 import TokenModel, {forgeToken} from '../models/TokenModel'
-import UserModel, {forgeUser} from '../models/UserModel'
+import UserModel, {forgeUser, forgeUserForStore} from '../models/UserModel'
 import {dynamoDbMapper} from '../utils/dynamodb'
 
 export type StoreTokenSetParams = {
@@ -28,7 +28,7 @@ export const storeTokenSet = async (params: StoreTokenSetParams): Promise<TokenM
 
 export const storeUser = async (params: StoreUserParams): Promise<UserModel> => {
   // Forge the user
-  const userEntity = forgeUser({
+  const userEntity = forgeUserForStore({
     subId: params.subId,
     email: params.email,
     first: params.first,
@@ -36,4 +36,13 @@ export const storeUser = async (params: StoreUserParams): Promise<UserModel> => 
   })
 
   return dynamoDbMapper.put(userEntity)
+}
+
+export const getUserBySubId = async (subId: string): Promise<UserModel> => {
+  // Forge the user
+  const userEntity = forgeUser({
+    subId,
+  })
+
+  return dynamoDbMapper.get(userEntity)
 }

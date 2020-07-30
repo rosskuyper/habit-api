@@ -5,6 +5,7 @@ import {providers} from '../config/identityProviders'
 import {processLoginPayload} from '../mediators/auth'
 import {CodeSwapInput, SignInOption} from '../schemas/AuthSchema'
 import {MeSchema} from '../schemas/UserSchema'
+import {getUserBySubId} from '../mappers/AuthMapper'
 
 @Resolver()
 class AuthResolver {
@@ -16,14 +17,16 @@ class AuthResolver {
   @Authorized()
   @Query(() => MeSchema)
   async me(@Ctx() context: AuthorizedAppContext): Promise<MeSchema> {
+    const user = await getUserBySubId(context.accessToken.sub)
+
     return {
       user: {
-        sub: context.accessToken.sub,
-        email: '',
-        first: '',
-        last: '',
-        updatedAt: new Date(),
-        createdAt: new Date(),
+        sub: user.id,
+        email: user.email,
+        first: user.first,
+        last: user.last,
+        updatedAt: user.updatedAt,
+        createdAt: user.createdAt,
       },
     }
   }
@@ -33,9 +36,9 @@ class AuthResolver {
     @Ctx() context: AppContext,
     @Arg('payload') {code, clientId}: CodeSwapInput,
   ): Promise<boolean> {
-    const decodedTokens = await processLoginPayload(code, clientId)
+    const {tokenSet} = await processLoginPayload(code, clientId)
 
-    context.res.cookie('access', decodedTokens.original.accessToken, setCookieConfig())
+    context.res.cookie('access', tokenSet.original.accessToken, setCookieConfig())
 
     return true
   }

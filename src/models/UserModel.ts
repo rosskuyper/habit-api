@@ -29,19 +29,32 @@ class UserModel {
 
 export type ForgeUserAttrs = {
   subId: string
+}
+
+export type ForgeUserForStoreAttrs = ForgeUserAttrs & {
   email: string
   first: string
   last: string
 }
 
-export const forgeUser = (attrs: ForgeUserAttrs): UserModel => {
-  return Object.assign(new UserModel(), {
+const forgeUserPrimaryKey = (attrs: ForgeUserAttrs): {id: string; sortKey: string} => {
+  return {
     id: attrs.subId,
     sortKey: `#PROFILE#${attrs.subId}`,
+  }
+}
+
+export const forgeUserForStore = (attrs: ForgeUserForStoreAttrs): UserModel => {
+  return Object.assign(new UserModel(), {
+    ...forgeUserPrimaryKey(attrs),
     email: attrs.email,
     first: attrs.first,
     last: attrs.last,
   })
+}
+
+export const forgeUser = (attrs: ForgeUserAttrs): UserModel => {
+  return Object.assign(new UserModel(), forgeUserPrimaryKey(attrs))
 }
 
 export default UserModel
