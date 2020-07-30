@@ -94,8 +94,10 @@ resource "aws_cognito_identity_provider" "main" {
   }
 
   attribute_mapping = {
-    email    = "email"
-    username = "sub"
+    email       = "email"
+    username    = "sub"
+    given_name  = "given_name"
+    family_name = "family_name"
   }
 }
 
