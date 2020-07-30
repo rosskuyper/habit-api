@@ -71,6 +71,23 @@ data "aws_iam_policy_document" "habit_graphql_main" {
       data.aws_kms_key.ssm.arn
     ]
   }
+
+  statement {
+    actions = [
+      "kms:Encrypt",
+      "kms:Decrypt",
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey*",
+      "kms:CreateGrant",
+      "kms:Describe*",
+      "kms:Get*",
+      "kms:List*",
+    ]
+
+    resources = [
+      data.aws_kms_key.habit_ddb.arn
+    ]
+  }
 }
 
 resource "aws_iam_role" "habit_graphql_main" {
