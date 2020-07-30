@@ -4,7 +4,7 @@
  */
 
 import 'reflect-metadata'
-import initExpress from '../app'
+import initExpress from '../express-app'
 
 const main = async () => {
   const {app, apolloServer} = await initExpress()
