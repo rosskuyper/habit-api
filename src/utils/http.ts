@@ -5,15 +5,11 @@ export type CustomOrigin = (
 ) => void
 
 export const generateOriginConfig = (whitelist: string[]): string | CustomOrigin => {
-  console.log('SetupCors', whitelist)
-
   if (whitelist.length === 1) {
     return whitelist[0]
   }
 
   const dynamicOrigin: CustomOrigin = (origin, callback) => {
-    console.log('RequestCheck', origin, whitelist)
-
     // non-xhr requests and app requests will not have an origin - allow
     if (!origin) {
       callback(null, true)

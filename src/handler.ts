@@ -1,5 +1,5 @@
 import {APIGatewayProxyEventV2, Context as LambdaContext} from 'aws-lambda'
-import awsServerlessExpress, {ProxyResult} from 'aws-serverless-express'
+import awsServerlessExpress, {Response} from 'aws-serverless-express'
 import {Server} from 'http'
 import initExpress from './app'
 import {ExpressApolloBundle} from './config/apollo'
@@ -24,8 +24,8 @@ const getAppServerBundle = deferPromiseCall(
   },
 )
 
-export async function handler(event: APIGatewayProxyEventV2, context: LambdaContext): Promise<ProxyResult> {
+export async function handler(event: APIGatewayProxyEventV2, context: LambdaContext): Promise<Response> {
   const {serverlessServer} = await getAppServerBundle()
 
-  return awsServerlessExpress.proxy(serverlessServer, marshallLambdaEvent(event), context, 'PROMISE')
+  return awsServerlessExpress.proxy(serverlessServer, marshallLambdaEvent(event), context, 'PROMISE').promise
 }
