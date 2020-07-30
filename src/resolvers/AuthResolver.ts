@@ -1,31 +1,30 @@
-import {Arg, Ctx, Mutation, Query, Resolver, Authorized} from 'type-graphql'
+import {Arg, Authorized, Ctx, Mutation, Query, Resolver} from 'type-graphql'
+import {setCookieConfig} from '../config/cookies'
+import {providers} from '../config/identityProviders'
+import {processLoginPayload} from '../mediators/auth'
+import {CodeSwapInput, SignInOption} from '../schemas/AuthSchema'
+import {MeSchema} from '../schemas/UserSchema'
 import {AppContext, AuthorizedAppContext} from '../utils/apollo'
-import {CognitoJWTSet, SignInOption, CodeSwapInput} from '../schemas/AuthSchema'
-import {providers} from '../utils/cognito/providers'
-import {swapCodeForTokens} from '../utils/cognito/tokenSwap'
-import {IS_LOCAL} from '../config'
-import {UserSchema} from '../schemas/UserSchema'
 
 @Resolver()
 class AuthResolver {
   @Query(() => [SignInOption])
   async getSignInOptions(): Promise<SignInOption[]> {
-    return providers
+    return Object.values(providers)
   }
 
   @Authorized()
-  @Query(() => UserSchema)
-  async me(@Ctx() context: AuthorizedAppContext): Promise<UserSchema> {
-    return context.user
-  }
-
-  @Mutation(() => CognitoJWTSet)
-  async swapCodeForTokens(@Arg('payload') {code, clientId}: CodeSwapInput): Promise<CognitoJWTSet> {
-    const tokenPayload = await swapCodeForTokens(code, clientId)
-
+  @Query(() => MeSchema)
+  async me(@Ctx() context: AuthorizedAppContext): Promise<MeSchema> {
     return {
-      idToken: tokenPayload.idToken,
-      accessToken: tokenPayload.accessToken,
+      user: {
+        sub: context.accessToken.sub,
+        email: '',
+        first: '',
+        last: '',
+        updatedAt: new Date(),
+        createdAt: new Date(),
+      },
     }
   }
 
@@ -34,14 +33,9 @@ class AuthResolver {
     @Ctx() context: AppContext,
     @Arg('payload') {code, clientId}: CodeSwapInput,
   ): Promise<boolean> {
-    const tokenPayload = await swapCodeForTokens(code, clientId)
+    const decodedTokens = await processLoginPayload(code, clientId)
 
-    context.res.cookie('access', tokenPayload.accessToken, {
-      httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days (token expires earlier but can be refreshed)
-      sameSite: 'strict',
-      secure: !IS_LOCAL,
-    })
+    context.res.cookie('access', decodedTokens.original.accessToken, setCookieConfig())
 
     return true
   }

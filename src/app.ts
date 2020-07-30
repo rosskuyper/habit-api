@@ -2,11 +2,9 @@ import {ApolloServer} from 'apollo-server-express'
 import cookieParser from 'cookie-parser'
 import express from 'express'
 import {buildSchema} from 'type-graphql'
-import {CORS_ALLOWED_ORIGINS, PLAYGROUND_ENABLED} from './config'
+import {customAuthChecker, ExpressApolloBundle, generateRequestContext, playground} from './config/apollo'
+import {CORS_ALLOWED_ORIGINS, PLAYGROUND_ENABLED} from './config/env'
 import AuthResolver from './resolvers/AuthResolver'
-import UserResolver from './resolvers/UserResolver'
-import {ExpressApolloBundle, playground} from './utils/apollo'
-import {customAuthChecker, generateRequestContext} from './utils/auth'
 import {generateOriginConfig} from './utils/http'
 import {logHandledError} from './utils/log'
 
@@ -18,7 +16,6 @@ const initExpress = async (): Promise<ExpressApolloBundle> => {
   const schema = await buildSchema({
     resolvers: [
       //
-      UserResolver,
       AuthResolver,
     ],
 

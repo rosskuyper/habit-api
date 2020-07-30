@@ -1,15 +1,16 @@
-export type RememberFn<T> = (key: Key, valueFn: () => Promise<T>) => Promise<T>
+export type RememberFn<T> = (key: Key, valueFn: () => T) => T
 export type Key = string | number
 
 export type Cache<T> = {
   cache: Map<Key, T>
   remember: RememberFn<T>
+  deleteItem: (key: string) => boolean
 }
 
-export const createCache = <T>(): Cache<T> => {
-  const cache: Map<Key, T> = new Map()
+export const createCache = <T>(maxSize = 200): Cache<T> => {
+  const cache = new Map<Key, T>()
 
-  const remember: RememberFn<T> = async (key, valueFn) => {
+  const remember: RememberFn<T> = (key, valueFn) => {
     // Check to see if we have a cache hit first
     if (cache.has(key)) {
       const cachedValue = cache.get(key)
@@ -20,28 +21,29 @@ export const createCache = <T>(): Cache<T> => {
       }
     }
 
-    const value = await valueFn()
+    const value = valueFn()
 
     cache.set(key, value)
 
     // limit the size of our cache
-    if (cache.size > 200) {
-      let deleteCount = 0
+    if (cache.size > maxSize) {
+      const keyToDelete = Array.from(cache.keys()).shift()
 
-      for (const key of cache.keys()) {
-        if (deleteCount++ > 100) {
-          break
-        }
-
-        cache.delete(key)
+      if (keyToDelete) {
+        cache.delete(keyToDelete)
       }
     }
 
     return value
   }
 
+  const deleteItem = (key: string): boolean => {
+    return cache.delete(key)
+  }
+
   return {
     cache,
     remember,
+    deleteItem,
   }
 }

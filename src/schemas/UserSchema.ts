@@ -15,7 +15,7 @@ export class AddUserInput {
 @ObjectType()
 export class UserSchema {
   @Field(() => ID)
-  id!: string
+  sub!: string
 
   @Field()
   email!: string
@@ -31,4 +31,10 @@ export class UserSchema {
 
   @Field()
   createdAt!: Date
+}
+
+@ObjectType()
+export class MeSchema {
+  @Field()
+  user!: UserSchema
 }

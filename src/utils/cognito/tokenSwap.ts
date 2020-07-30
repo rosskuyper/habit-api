@@ -1,21 +1,18 @@
 import fetch from 'node-fetch'
 import queryString from 'query-string'
-import {AUTH_COGNITO_CLIENT_SECRET} from '../../config'
-import {storeTokenSet} from '../../mappers/TokenMapper'
-import {providers} from './providers'
-import TokenSet from '../../models/TokenSetModel'
-import {verifyTokenResult} from '../auth'
+import {RawTokenSet} from './jwt'
 
-export const swapCodeForTokens = async (code: string, clientId: string): Promise<TokenSet> => {
-  const provider = providers.find((provider) => provider.clientId === clientId)
+export type OAuthOptions = {
+  clientId: string
+  clientSecret: string
+  tokenUri: string
+  redirectUri: string
+}
 
-  if (!provider) {
-    throw new Error('Invalid clientId')
-  }
+export const swapCodeForTokens = async (code: string, opts: OAuthOptions): Promise<RawTokenSet> => {
+  const authHeader = Buffer.from(`${opts.clientId}:${opts.clientSecret}`, 'utf8').toString('base64')
 
-  const authHeader = Buffer.from(`${clientId}:${AUTH_COGNITO_CLIENT_SECRET}`, 'utf8').toString('base64')
-
-  const response = await fetch(provider.tokenUri, {
+  const response = await fetch(opts.tokenUri, {
     method: 'POST',
     headers: {
       Authorization: `Basic ${authHeader}`,
@@ -23,7 +20,7 @@ export const swapCodeForTokens = async (code: string, clientId: string): Promise
     },
     body: queryString.stringify({
       grant_type: 'authorization_code',
-      redirect_uri: provider.redirectUri,
+      redirect_uri: opts.redirectUri,
       code,
     }),
   })
@@ -34,7 +31,15 @@ export const swapCodeForTokens = async (code: string, clientId: string): Promise
     throw new Error(responseBody.error)
   }
 
-  const tokenSet = verifyTokenResult(responseBody)
+  const {access_token: accessToken, refresh_token: refreshToken, id_token: idToken} = responseBody
 
-  return await storeTokenSet(tokenSet)
+  if (!accessToken || !refreshToken || !idToken) {
+    throw new Error('Invalid Cognito token payload')
+  }
+
+  return {
+    accessToken,
+    refreshToken,
+    idToken,
+  }
 }

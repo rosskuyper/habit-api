@@ -1,4 +1,25 @@
-import jwt from 'jsonwebtoken'
+import jwt, {Algorithm} from 'jsonwebtoken'
+import fetch from 'node-fetch'
+import jwkToPem, {JWK} from 'jwk-to-pem'
+import {createCache} from '../cache'
+
+/********************************
+ * Types
+ ********************************/
+export type JwtHeader = {
+  kid: string
+  alg: string
+}
+
+type CognitoPubkey = JWK & {
+  kid: string
+}
+
+type CognitoPubkeySet = {
+  keys: CognitoPubkey[]
+}
+
+type CognitoPubkeyMap = Record<string, string>
 
 export type CognitoIdentity = {
   userId: string
@@ -9,84 +30,146 @@ export type CognitoIdentity = {
   dateCreated: string
 }
 
-export type AccessToken = {
+type BaseToken = {
   sub: string
-  username: string
-  client_id: string
-  token_use: 'access'
-  scope: string
-  auth_time: Date
   iss: string
-  exp: Date
-  iat: Date
-  version: number
-  jti: string
+  exp: number
+  iat: number
+  auth_time: number
   'cognito:groups': string[]
 }
 
-export type IdToken = {
-  sub: string
+export type AccessToken = BaseToken & {
+  token_use: 'access'
+  username: string
+  client_id: string
+  scope: string
+  version: number
+  jti: string
+}
+
+export type IdToken = BaseToken & {
+  token_use: 'id'
   email: string
   aud: string
-  token_use: 'id'
-  auth_time: Date
-  iss: string
-  exp: Date
-  iat: Date
   at_hash: string
   identities: CognitoIdentity[]
   'cognito:username': string
-  'cognito:groups': string[]
 }
 
-export class InvalidTokenError extends Error {}
+export type RawTokenSet = {
+  accessToken: string
+  refreshToken: string
+  idToken: string
+}
 
-export const decodeAccessToken = (accessToken: string): AccessToken => {
-  const decodedToken = jwt.decode(accessToken)
+type Token = AccessToken | IdToken
 
-  if (!decodedToken || typeof decodedToken === 'string') throw new InvalidTokenError('Token missing or malformed')
-  if (!decodedToken.sub || typeof decodedToken.sub !== 'string') throw new InvalidTokenError('Invalid or missing sub')
+export type TokenWithHeader<TokenType = Token> = {
+  payload: TokenType
+  header: JwtHeader
+}
 
-  if (!decodedToken.token_use || decodedToken.token_use !== 'access')
-    throw new InvalidTokenError('Invalid or missing token use')
+export type DecodedTokenSet = {
+  accessToken: AccessToken
+  idToken: IdToken
+  original: RawTokenSet
+}
+
+export type VerifyTokenOpts = {
+  authorizedIssuers: string[]
+  authorizedAudiences: string[]
+}
+
+/********************************
+ * Utils
+ ********************************/
+
+const {remember: rememberPubkey} = createCache<Promise<CognitoPubkeyMap>>()
+
+const fetchPubkeys = async (iss: string): Promise<CognitoPubkeyMap> => {
+  const res = await fetch(`${iss}/.well-known/jwks.json`)
+
+  if (!res.ok) {
+    throw new Error(await res.text())
+  }
+
+  const keySet: CognitoPubkeySet = await res.json()
+
+  return keySet.keys.reduce((acc, key) => {
+    acc[key.kid] = jwkToPem(key)
+    return acc
+  }, {} as CognitoPubkeyMap)
+}
+
+const decodeToken = <T = Token>(token: string): {header: JwtHeader; payload: T} => {
+  const decodeResult = jwt.decode(token, {complete: true})
+
+  if (!decodeResult || typeof decodeResult === 'string' || !decodeResult.header || !decodeResult.payload) {
+    throw new Error('Failed to decode token')
+  }
 
   return {
-    sub: decodedToken.sub,
-    username: decodedToken.username,
-    client_id: decodedToken.client_id,
-    token_use: decodedToken.token_use,
-    scope: decodedToken.scope,
-    auth_time: new Date(decodedToken.auth_time * 1000),
-    iss: decodedToken.iss,
-    exp: new Date(decodedToken.exp * 1000),
-    iat: new Date(decodedToken.iat * 1000),
-    version: decodedToken.version,
-    jti: decodedToken.jti,
-    'cognito:groups': decodedToken['cognito:groups'],
+    header: decodeResult.header,
+    payload: decodeResult.payload,
   }
 }
 
-export const decodeIdToken = (idtoken: string): IdToken => {
-  const decodedToken = jwt.decode(idtoken)
+const verifyTokenSignature = async <T = Token>(token: TokenWithHeader, tokenString: string): Promise<T> => {
+  const {
+    header: {kid, alg},
+    payload: {iss},
+  } = token
 
-  if (!decodedToken || typeof decodedToken === 'string') throw new InvalidTokenError('Token missing or malformed')
-  if (!decodedToken.sub || typeof decodedToken.sub !== 'string') throw new InvalidTokenError('Invalid or missing sub')
+  const keySet = await rememberPubkey(iss, () => fetchPubkeys(iss))
+  const pem = keySet[token.header.kid]
 
-  if (!decodedToken.token_use || decodedToken.token_use !== 'id')
-    throw new InvalidTokenError('Invalid or missing token use')
+  if (!pem) {
+    throw new Error(`No pubkey found for ${kid}`)
+  }
 
+  return new Promise((resolve, reject) => {
+    jwt.verify(tokenString, pem, {algorithms: [alg as Algorithm]}, (err, decoded) => {
+      if (err) {
+        return reject(err)
+      }
+
+      resolve((decoded as unknown) as T)
+    })
+  })
+}
+
+/********************************
+ * Module Functions
+ ********************************/
+
+export const verifyToken = async <T = Token>(
+  tokenString: string,
+  opts: VerifyTokenOpts,
+  tokenUse: T extends AccessToken ? 'access' : 'id',
+): Promise<T> => {
+  const token = decodeToken<Token>(tokenString)
+
+  if (token.payload.token_use !== tokenUse) {
+    throw new Error('Invalid token use')
+  }
+
+  const audience = token.payload.token_use === 'id' ? token.payload.aud : token.payload.client_id
+
+  const validIssuer = opts.authorizedIssuers.includes(token.payload.iss)
+  const validAudience = opts.authorizedAudiences.includes(audience)
+
+  if (!validIssuer || !validAudience) {
+    throw new Error('Invalid token audience or issuer')
+  }
+
+  return verifyTokenSignature<T>(token, tokenString)
+}
+
+export const verifyTokenSet = async (tokenSet: RawTokenSet, opts: VerifyTokenOpts): Promise<DecodedTokenSet> => {
   return {
-    sub: decodedToken.sub,
-    email: decodedToken.email,
-    aud: decodedToken.aud,
-    token_use: decodedToken.token_use,
-    auth_time: new Date(decodedToken.auth_time * 1000),
-    iss: decodedToken.iss,
-    exp: new Date(decodedToken.exp * 1000),
-    iat: new Date(decodedToken.iat * 1000),
-    at_hash: decodedToken.at_hash,
-    identities: decodedToken.identities,
-    'cognito:username': decodedToken['cognito:username'],
-    'cognito:groups': decodedToken['cognito:groups'],
+    accessToken: await verifyToken<AccessToken>(tokenSet.accessToken, opts, 'access'),
+    idToken: await verifyToken<IdToken>(tokenSet.idToken, opts, 'id'),
+    original: tokenSet,
   }
 }
