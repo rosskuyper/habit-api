@@ -3,7 +3,7 @@ import {AppContext, AuthorizedAppContext} from '../services/apollo'
 import {setCookieConfig} from '../config/cookies'
 import {providers} from '../config/identityProviders'
 import {processLoginPayload} from '../mediators/auth'
-import {CodeSwapInput, SignInOption} from '../schemas/AuthSchema'
+import {CodeSwapInput, SignInOption, AuthTokenSet} from '../schemas/AuthSchema'
 import {MeSchema} from '../schemas/UserSchema'
 import {getUserBySubId} from '../mappers/AuthMapper'
 
@@ -28,6 +28,18 @@ class AuthResolver {
         updatedAt: user.updatedAt,
         createdAt: user.createdAt,
       },
+    }
+  }
+
+  @Mutation(() => AuthTokenSet)
+  async swapCodeForTokens(
+    @Ctx() context: AppContext,
+    @Arg('payload') {code, clientId}: CodeSwapInput,
+  ): Promise<AuthTokenSet> {
+    const {tokenSet} = await processLoginPayload(code, clientId)
+
+    return {
+      accessToken: tokenSet.original.accessToken,
     }
   }
 

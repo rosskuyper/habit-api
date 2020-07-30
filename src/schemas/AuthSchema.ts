@@ -25,10 +25,7 @@ export class SignInOption {
 }
 
 @ObjectType()
-export class CognitoJWTSet {
-  @Field()
-  idToken!: string
-
+export class AuthTokenSet {
   @Field()
   accessToken!: string
 }
