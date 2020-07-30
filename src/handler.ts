@@ -36,13 +36,28 @@ const getAppServerBundle = async (): Promise<AppServerBundle> => {
   }
 }
 
+// Awaiting this directly will resolve to the same value with each request that comes in
 const serverBundlePromise = getAppServerBundle()
 
 export async function handler(event: APIGatewayProxyEventV2, context: LambdaContext): Promise<Response> {
-  // This will resolve to the same value with each request that comes in
+  // We don't actually need the whole bundle, just the serverless-express layer
   const {serverlessServer} = await serverBundlePromise
 
+  /**
+   * This project is configured to use the new(er) api gateway http integration.
+   * The event comes through in a newer structure, which needs to be transformed / marshalled
+   * into the older format.
+   *
+   * NB: For a production environment it would be prudent to either get first-class support for the new event
+   * format in aws-serverless-express or alter the infrastructure to use the older payload format.
+   * The reason I opted not to use the old format is that it's not configurable with the very
+   * convenient `aws_apigatewayv2_api` resource.
+   */
   const eventV1 = marshallLambdaEvent(event)
 
+  /**
+   * Because our handler is a promise, we need aws-serverless-express to abide by that contract too.
+   * Changing this to use another `resolutionMode` will result in the lambda exiting preemptively.
+   */
   return awsServerlessExpress.proxy(serverlessServer, eventV1, context, 'PROMISE').promise
 }
