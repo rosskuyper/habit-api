@@ -1,10 +1,10 @@
 import {Arg, Authorized, Ctx, Mutation, Query, Resolver} from 'type-graphql'
+import {AppContext, AuthorizedAppContext} from '../config/apollo'
 import {setCookieConfig} from '../config/cookies'
 import {providers} from '../config/identityProviders'
 import {processLoginPayload} from '../mediators/auth'
 import {CodeSwapInput, SignInOption} from '../schemas/AuthSchema'
 import {MeSchema} from '../schemas/UserSchema'
-import {AppContext, AuthorizedAppContext} from '../utils/apollo'
 
 @Resolver()
 class AuthResolver {
