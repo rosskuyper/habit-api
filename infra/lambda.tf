@@ -135,7 +135,7 @@ resource "aws_lambda_function" "habit_graphql_main" {
       AUTH_COGNITO_AUTHORIZE_DOMAIN = "${local.domain_name}.auth.${data.aws_region.current.name}.amazoncognito.com"
       AUTH_COGNITO_REDIRECT_URI     = "https://www.habitualizer.com/oauth/callback"
 
-      CORS_ALLOWED_ORIGINS = "https://habitualizer.com, https://www.habitualizer.com"
+      CORS_ALLOWED_ORIGINS = "https://habitualizer.com, https://www.habitualizer.com, https://api.habitualizer.com"
     }
   }
 }
