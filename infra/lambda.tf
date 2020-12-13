@@ -126,14 +126,11 @@ resource "aws_lambda_function" "habit_graphql_main" {
 
       BUGSNAG_API_KEY = data.aws_kms_secrets.main.plaintext["bugsnag_api_key"]
 
-      DDB_PRIMARY_TABLE = aws_dynamodb_table.habit_primary.id
+      FIREBASE_PROJECT_ID   = "habit-tracker-282721"
+      FIREBASE_PRIVATE_KEY  = data.aws_kms_secrets.main.plaintext["firebase_private_key"]
+      FIREBASE_CLIENT_EMAIL = "firebase-adminsdk-pb28j@habit-tracker-282721.iam.gserviceaccount.com"
 
-      AUTH_COGNITO_USER_POOL_ID     = aws_cognito_user_pool.main.id
-      AUTH_COGNITO_USER_POOL_REGION = data.aws_region.current.name
-      AUTH_COGNITO_CLIENT_ID        = aws_cognito_user_pool_client.main.id
-      AUTH_COGNITO_CLIENT_SECRET    = aws_cognito_user_pool_client.main.client_secret
-      AUTH_COGNITO_AUTHORIZE_DOMAIN = "${local.domain_name}.auth.${data.aws_region.current.name}.amazoncognito.com"
-      AUTH_COGNITO_REDIRECT_URI     = "https://www.habitualizer.com/oauth/callback"
+      DDB_PRIMARY_TABLE = aws_dynamodb_table.habit_primary.id
 
       CORS_ALLOWED_ORIGINS = "https://habitualizer.com, https://www.habitualizer.com, https://api.habitualizer.com"
     }
