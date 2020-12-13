@@ -14,11 +14,8 @@ export const BUGSNAG_API_KEY = asRequiredTrimmedString('BUGSNAG_API_KEY')
 
 export const DDB_PRIMARY_TABLE = asRequiredTrimmedString('DDB_PRIMARY_TABLE')
 
-export const AUTH_COGNITO_USER_POOL_ID = asRequiredTrimmedString('AUTH_COGNITO_USER_POOL_ID')
-export const AUTH_COGNITO_USER_POOL_REGION = asRequiredTrimmedString('AUTH_COGNITO_USER_POOL_REGION')
-export const AUTH_COGNITO_CLIENT_ID = asRequiredTrimmedString('AUTH_COGNITO_CLIENT_ID')
-export const AUTH_COGNITO_CLIENT_SECRET = asRequiredTrimmedString('AUTH_COGNITO_CLIENT_SECRET')
-export const AUTH_COGNITO_AUTHORIZE_DOMAIN = asRequiredTrimmedString('AUTH_COGNITO_AUTHORIZE_DOMAIN')
-export const AUTH_COGNITO_REDIRECT_URI = asRequiredTrimmedString('AUTH_COGNITO_REDIRECT_URI')
-
 export const CORS_ALLOWED_ORIGINS = env.get('CORS_ALLOWED_ORIGINS').required().asArray().map(trim)
+
+export const FIREBASE_PROJECT_ID = env.get('FIREBASE_PROJECT_ID').required().asString().trim()
+export const FIREBASE_PRIVATE_KEY = env.get('FIREBASE_PRIVATE_KEY').required().asString().replace(/\\n/g, '\n')
+export const FIREBASE_CLIENT_EMAIL = env.get('FIREBASE_CLIENT_EMAIL').required().asString().trim()

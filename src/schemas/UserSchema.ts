@@ -1,36 +1,21 @@
 import {ObjectType, Field, ID, InputType} from 'type-graphql'
 
-@InputType()
-export class AddUserInput {
-  @Field()
-  first!: string
-
-  @Field()
-  last!: string
-
-  @Field()
-  email!: string
-}
-
 @ObjectType()
 export class UserSchema {
   @Field(() => ID)
   sub!: string
 
-  @Field()
-  email!: string
+  @Field({nullable: true})
+  email?: string
 
   @Field({nullable: true})
-  first?: string
-
-  @Field({nullable: true})
-  last?: string
+  name?: string
 
   @Field()
-  updatedAt!: Date
+  iat!: number
 
   @Field()
-  createdAt!: Date
+  exp!: number
 }
 
 @ObjectType()

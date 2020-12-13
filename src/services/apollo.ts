@@ -1,10 +1,9 @@
 import {ApolloServer} from 'apollo-server-express'
 import express from 'express'
 import {AuthChecker} from 'type-graphql'
-import {AccessToken, verifyToken} from '../utils/jwt'
-import {logHandledError} from './log'
 import {baseCookieOpts} from '../config/cookies'
-import {authorizedClientIds, authorizedIssuers} from '../config/identityProviders'
+import {firebase, verifyBearerHeader} from './firebase'
+import {logHandledError} from './log'
 
 export type ExpressContext = {
   req: express.Request
@@ -12,11 +11,11 @@ export type ExpressContext = {
 }
 
 export type AppContext = ExpressContext & {
-  accessToken?: AccessToken
+  accessToken?: firebase.auth.DecodedIdToken
 }
 
 export type AuthorizedAppContext = ExpressContext & {
-  accessToken: AccessToken
+  accessToken: firebase.auth.DecodedIdToken
 }
 
 export type ExpressApolloBundle = {
@@ -37,24 +36,18 @@ export const customAuthChecker: AuthChecker<AppContext> = async ({context}) => {
   return Boolean(context.accessToken)
 }
 
-/**
- * Middleware to create the request context
- */
-const verifyOpts = {
-  authorizedIssuers,
-  authorizedAudiences: authorizedClientIds,
-}
-
 export const generateRequestContext = async (context: ExpressContext): Promise<AppContext> => {
   try {
-    const accessToken = context.req.cookies?.access
-      ? await verifyToken<AccessToken>(context.req.cookies?.access, verifyOpts, 'access')
-      : undefined
+    if (context.req.headers.authorization) {
+      const accessToken = await verifyBearerHeader(context.req.headers.authorization)
 
-    return {
-      ...context,
-      accessToken,
+      return {
+        ...context,
+        accessToken,
+      }
     }
+
+    return context
   } catch (error) {
     logHandledError(error)
 

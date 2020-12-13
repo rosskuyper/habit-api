@@ -24,3 +24,6 @@ dist/
 .eslintcache
 
 *.DS_Store
+
+# Google Service Credentials
+firebase-credentials.json
