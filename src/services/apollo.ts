@@ -11,11 +11,11 @@ export type ExpressContext = {
 }
 
 export type AppContext = ExpressContext & {
-  accessToken?: firebase.auth.DecodedIdToken
+  idToken?: firebase.auth.DecodedIdToken
 }
 
 export type AuthorizedAppContext = ExpressContext & {
-  accessToken: firebase.auth.DecodedIdToken
+  idToken: firebase.auth.DecodedIdToken
 }
 
 export type ExpressApolloBundle = {
@@ -33,17 +33,17 @@ export const playground = {
  * Used by the `@Authorized` decorator for a resolver query / mutation
  */
 export const customAuthChecker: AuthChecker<AppContext> = async ({context}) => {
-  return Boolean(context.accessToken)
+  return Boolean(context.idToken)
 }
 
 export const generateRequestContext = async (context: ExpressContext): Promise<AppContext> => {
   try {
     if (context.req.headers.authorization) {
-      const accessToken = await verifyBearerHeader(context.req.headers.authorization)
+      const idToken = await verifyBearerHeader(context.req.headers.authorization)
 
       return {
         ...context,
-        accessToken,
+        idToken,
       }
     }
 
