@@ -9,11 +9,11 @@ class AuthResolver {
   async me(@Ctx() context: AuthorizedAppContext): Promise<MeSchema> {
     return {
       user: {
-        sub: context.accessToken.sub,
-        email: context.accessToken.email,
-        name: context.accessToken.name,
-        iat: context.accessToken.updatedAt,
-        exp: context.accessToken.createdAt,
+        sub: context.idToken.sub,
+        email: context.idToken.email,
+        name: context.idToken.name,
+        iat: context.idToken.updatedAt,
+        exp: context.idToken.createdAt,
       },
     }
   }
