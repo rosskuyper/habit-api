@@ -4,8 +4,8 @@ resource "aws_dynamodb_table" "habit_primary" {
   read_capacity  = 10
   write_capacity = 10
 
-  hash_key  = "id"
-  range_key = "sortKey"
+  hash_key  = "hashKey"
+  range_key = "rangeKey"
 
   server_side_encryption {
     enabled     = true
@@ -13,12 +13,12 @@ resource "aws_dynamodb_table" "habit_primary" {
   }
 
   attribute {
-    name = "id"
+    name = "hashKey"
     type = "S"
   }
 
   attribute {
-    name = "sortKey"
+    name = "rangeKey"
     type = "S"
   }
 }
