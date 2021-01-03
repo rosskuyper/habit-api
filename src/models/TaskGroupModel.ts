@@ -10,7 +10,7 @@ export class TaskModel {
   text!: string
 
   @attribute()
-  checkedAt?: Date
+  completedAt?: Date
 
   @attribute({defaultProvider: () => new Date()})
   createdAt!: Date
@@ -76,8 +76,15 @@ export const forgeTaskGroup = (attrs: ForgeTaskGroupAttrs): TaskGroupModel => {
 /**
  * Utils
  */
-export const findTask = (taskGroup: TaskGroupModel, task: TaskModel): TaskModel | undefined => {
-  return taskGroup.tasks.find((innerTask) => {
-    return innerTask.id === task.id
-  })
+type FindTaskType = Pick<TaskModel, 'id'>
+const findTaskFn = (taskToFind: FindTaskType) => {
+  return (innerTask: FindTaskType) => innerTask.id === taskToFind.id
+}
+
+export const findTask = (taskGroup: TaskGroupModel, task: FindTaskType): TaskModel | undefined => {
+  return taskGroup.tasks.find(findTaskFn(task))
+}
+
+export const findTaskIndex = (taskGroup: TaskGroupModel, task: FindTaskType): number => {
+  return taskGroup.tasks.findIndex(findTaskFn(task))
 }

@@ -1,6 +1,6 @@
 import {Arg, Authorized, Ctx, Mutation, Resolver} from 'type-graphql'
-import {storeTask} from '../mappers/TaskGroupMapper'
-import {TaskSchema} from '../schemas/TaskSchema'
+import {deleteTask, setTaskCompleted, storeTask} from '../mappers/TaskGroupMapper'
+import {TaskGroupSchema, TaskSchema} from '../schemas/TaskSchema'
 import {AuthorizedAppContext} from '../services/apollo'
 
 @Resolver()
@@ -21,6 +21,44 @@ export class TaskResolver {
       task: {
         taskId,
         text,
+      },
+    })
+  }
+
+  @Authorized()
+  @Mutation(() => TaskSchema)
+  async setTaskCompleted(
+    @Ctx() context: AuthorizedAppContext,
+    @Arg('taskGroupId') taskGroupId: string,
+    @Arg('taskId') taskId: string,
+    @Arg('completedAt', {nullable: true}) completedAt?: Date,
+  ): Promise<TaskSchema> {
+    return await setTaskCompleted({
+      taskGroup: {
+        userId: context.idToken.sub,
+        taskGroupId,
+      },
+      task: {
+        taskId,
+        completedAt,
+      },
+    })
+  }
+
+  @Authorized()
+  @Mutation(() => TaskGroupSchema)
+  async deleteTask(
+    @Ctx() context: AuthorizedAppContext,
+    @Arg('taskGroupId') taskGroupId: string,
+    @Arg('taskId') taskId: string,
+  ): Promise<TaskGroupSchema> {
+    return await deleteTask({
+      taskGroup: {
+        userId: context.idToken.sub,
+        taskGroupId,
+      },
+      task: {
+        taskId,
       },
     })
   }

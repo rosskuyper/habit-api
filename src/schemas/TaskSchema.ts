@@ -8,8 +8,8 @@ export class TaskSchema {
   @Field()
   text!: string
 
-  @Field()
-  checkedAt?: Date
+  @Field({nullable: true})
+  completedAt?: Date
 
   @Field()
   createdAt!: Date
@@ -19,6 +19,9 @@ export class TaskSchema {
 export class TaskGroupSchema {
   @Field(() => ID)
   id!: string
+
+  @Field()
+  version!: number
 
   @Field()
   name!: string

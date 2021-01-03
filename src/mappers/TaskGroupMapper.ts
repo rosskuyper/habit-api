@@ -6,12 +6,45 @@ import {
   forgeTask,
   TaskModel,
   findTask,
+  findTaskIndex,
 } from '../models/TaskGroupModel'
 import {dynamoDbMapper} from '../services/dynamodb'
 
 // The Task Group name is required on store or update
 type StoreOrUpdateTaskGroupParams = ForgeTaskGroupAttrs & {
   name: string
+}
+
+/**
+ * Base Utils
+ */
+export const getTaskGroup = (taskGroup: ForgeTaskGroupAttrs): Promise<TaskGroupModel> => {
+  return dynamoDbMapper.get(forgeTaskGroup(taskGroup))
+}
+
+export type TaskGroupTaskTuple = {
+  taskGroup: TaskGroupModel
+  task: TaskModel
+  taskIndex: number
+}
+export const getTaskGroupAndTask = async (
+  taskGroupAttrs: ForgeTaskGroupAttrs,
+  taskAttrs: ForgeTaskAttrs,
+): Promise<TaskGroupTaskTuple> => {
+  const taskGroup = await getTaskGroup(taskGroupAttrs)
+
+  // Get a reference to the task we need to update
+  const taskIndex = findTaskIndex(taskGroup, {id: taskAttrs.taskId})
+
+  if (taskIndex === -1) {
+    throw new Error('Task not found in Task Group')
+  }
+
+  return {
+    taskGroup,
+    taskIndex,
+    task: taskGroup.tasks[taskIndex],
+  }
 }
 
 /**
@@ -27,7 +60,7 @@ export const storeTaskGroup = async (params: StoreOrUpdateTaskGroupParams): Prom
  * Update an existing Task Group
  */
 export const updateTaskGroup = async (params: StoreOrUpdateTaskGroupParams): Promise<TaskGroupModel> => {
-  const taskGroup = await dynamoDbMapper.get(forgeTaskGroup(params))
+  const taskGroup = await getTaskGroup(params)
 
   taskGroup.name = params.name
   taskGroup.updatedAt = new Date()
@@ -40,7 +73,9 @@ export const updateTaskGroup = async (params: StoreOrUpdateTaskGroupParams): Pro
  */
 export type StoreTaskParams = {
   taskGroup: ForgeTaskGroupAttrs
-  task: ForgeTaskAttrs
+  task: ForgeTaskAttrs & {
+    text: string
+  }
 }
 export const storeTask = async (params: StoreTaskParams): Promise<TaskModel> => {
   // Get the parent task group
@@ -62,4 +97,39 @@ export const storeTask = async (params: StoreTaskParams): Promise<TaskModel> => 
 
   // return the task
   return task
+}
+
+export type DeleteTaskParams = {
+  taskGroup: ForgeTaskGroupAttrs
+  task: ForgeTaskAttrs
+}
+export const deleteTask = async (params: DeleteTaskParams): Promise<TaskGroupModel> => {
+  const {taskGroup, taskIndex} = await getTaskGroupAndTask(params.taskGroup, params.task)
+
+  taskGroup.tasks.splice(taskIndex, 1)
+
+  await dynamoDbMapper.update(taskGroup)
+
+  return taskGroup
+}
+
+/**
+ * Mark a task as completed or not completed
+ */
+export type SetTaskCompletedParams = {
+  taskGroup: ForgeTaskGroupAttrs
+  task: ForgeTaskAttrs & {
+    completedAt?: Date
+  }
+}
+export const setTaskCompleted = async (params: SetTaskCompletedParams): Promise<TaskModel> => {
+  const {taskGroup, taskIndex} = await getTaskGroupAndTask(params.taskGroup, params.task)
+
+  // Set or unset the completedAt field
+  taskGroup.tasks[taskIndex].completedAt = params.task.completedAt
+
+  // Save
+  await dynamoDbMapper.update(taskGroup)
+
+  return taskGroup.tasks[taskIndex]
 }
