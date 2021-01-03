@@ -2,7 +2,7 @@ import {embed} from '@aws/dynamodb-data-mapper'
 import {attribute, hashKey, rangeKey, table, versionAttribute} from '@aws/dynamodb-data-mapper-annotations'
 import {DDB_PRIMARY_TABLE} from '../config/env'
 
-export class Task {
+export class TaskModel {
   @attribute()
   id!: string
 
@@ -32,8 +32,8 @@ export class TaskGroupModel {
   @attribute()
   name!: string
 
-  @attribute({memberType: embed(Task)})
-  tasks!: Array<Task>
+  @attribute({memberType: embed(TaskModel)})
+  tasks!: Array<TaskModel>
 
   @versionAttribute()
   version!: number
@@ -45,10 +45,22 @@ export class TaskGroupModel {
   updatedAt!: Date
 }
 
+export type ForgeTaskAttrs = {
+  taskId: string
+  text?: string
+}
+
+export const forgeTask = (attrs: ForgeTaskAttrs): TaskModel => {
+  return Object.assign(new TaskModel(), {
+    id: attrs.taskId,
+    text: attrs.text,
+  })
+}
+
 export type ForgeTaskGroupAttrs = {
   userId: string
   taskGroupId: string
-  name: string
+  name?: string
 }
 
 export const forgeTaskGroup = (attrs: ForgeTaskGroupAttrs): TaskGroupModel => {
@@ -58,5 +70,14 @@ export const forgeTaskGroup = (attrs: ForgeTaskGroupAttrs): TaskGroupModel => {
     id: attrs.taskGroupId,
     name: attrs.name,
     tasks: [],
+  })
+}
+
+/**
+ * Utils
+ */
+export const findTask = (taskGroup: TaskGroupModel, task: TaskModel): TaskModel | undefined => {
+  return taskGroup.tasks.find((innerTask) => {
+    return innerTask.id === task.id
   })
 }
