@@ -12,19 +12,11 @@ class TaskGroupResolver {
     @Arg('name') name: string,
     @Ctx() context: AuthorizedAppContext,
   ): Promise<TaskGroupSchema> {
-    const taskGroup = await storeTaskGroup({
+    return await storeTaskGroup({
       userId: context.idToken.sub,
       taskGroupId: id,
       name: name,
     })
-
-    return {
-      id: taskGroup.id,
-      name: taskGroup.name,
-      tasks: taskGroup.tasks,
-      createdAt: taskGroup.createdAt,
-      updatedAt: taskGroup.updatedAt,
-    }
   }
 
   @Authorized()
@@ -34,19 +26,11 @@ class TaskGroupResolver {
     @Arg('name') name: string,
     @Ctx() context: AuthorizedAppContext,
   ): Promise<TaskGroupSchema> {
-    const taskGroup = await updateTaskGroup({
+    return await updateTaskGroup({
       userId: context.idToken.sub,
       taskGroupId: id,
       name: name,
     })
-
-    return {
-      id: taskGroup.id,
-      name: taskGroup.name,
-      tasks: taskGroup.tasks,
-      createdAt: taskGroup.createdAt,
-      updatedAt: taskGroup.updatedAt,
-    }
   }
 }
 
