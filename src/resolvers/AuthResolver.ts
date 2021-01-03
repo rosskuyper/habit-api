@@ -3,7 +3,7 @@ import {MeSchema} from '../schemas/UserSchema'
 import {AuthorizedAppContext} from '../services/apollo'
 
 @Resolver()
-class AuthResolver {
+export class AuthResolver {
   @Authorized()
   @Query(() => MeSchema)
   async me(@Ctx() context: AuthorizedAppContext): Promise<MeSchema> {
@@ -18,5 +18,3 @@ class AuthResolver {
     }
   }
 }
-
-export default AuthResolver

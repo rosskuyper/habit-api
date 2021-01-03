@@ -1,7 +1,9 @@
 import {ApolloServer} from 'apollo-server-express'
 import {buildSchema} from 'type-graphql'
 import {PLAYGROUND_ENABLED} from './config/env'
-import AuthResolver from './resolvers/AuthResolver'
+import {AuthResolver} from './resolvers/AuthResolver'
+import {TaskGroupResolver} from './resolvers/TaskGroupResolver'
+import {TaskResolver} from './resolvers/TaskResolver'
 import {customAuthChecker, generateRequestContext, playground} from './services/apollo'
 import {logHandledError} from './services/log'
 
@@ -18,6 +20,8 @@ const createServer = async (): Promise<ApolloServer> => {
     resolvers: [
       //
       AuthResolver,
+      TaskGroupResolver,
+      TaskResolver,
     ],
 
     // This checks that we found and successfully parsed an access token
