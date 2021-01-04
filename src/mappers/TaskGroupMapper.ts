@@ -1,3 +1,4 @@
+import {beginsWith} from '@aws/dynamodb-expressions'
 import {
   TaskGroupModel,
   forgeTaskGroup,
@@ -45,6 +46,23 @@ export const getTaskGroupAndTask = async (
     taskIndex,
     task: taskGroup.tasks[taskIndex],
   }
+}
+
+/**
+ * Query TaskGroups for a given user
+ */
+export const getTaskGroups = async ({userId}: {userId: string}): Promise<TaskGroupModel[]> => {
+  const results = []
+  const iterator = await dynamoDbMapper.query(TaskGroupModel, {
+    hashKey: userId,
+    rangeKey: beginsWith('#TASKGROUP#'),
+  })
+
+  for await (const record of iterator) {
+    results.push(record)
+  }
+
+  return results
 }
 
 /**

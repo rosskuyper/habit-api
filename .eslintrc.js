@@ -21,5 +21,7 @@ module.exports = {
     'no-async-promise-executor': 'error',
     'require-atomic-updates': 'error',
     'array-callback-return': 'error',
+    'no-shadow': 'off',
+    '@typescript-eslint/no-shadow': 'error',
   },
 }
