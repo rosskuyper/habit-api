@@ -16,4 +16,21 @@ data "aws_kms_secrets" "main" {
       service = local.service_name
     }
   }
+
+  secret {
+    name    = "slack_webhook"
+    payload = "AQICAHhOyM5btVbfvpZQ/4Z6nIPAoZ4eCTd0WLRyE39dZQLJxAEr25EILVLR0AKFFlyM+9TQAAAAszCBsAYJKoZIhvcNAQcGoIGiMIGfAgEAMIGZBgkqhkiG9w0BBwEwHgYJYIZIAWUDBAEuMBEEDEnd8BpH5cOs3rgybAIBEIBsMQw05kg91RaLjwa7ufHGorHKfWIf1KpfMGYI1/AdnUyeU3I5j4nAqomghCMmbiODQtuBeWTogOswZDwdxSEHw/dVnHMJ907yqrD0OM3Sw7Gw5Eaew9Vuqz+InKFp8VNjluzSaMrav+8e+MNH"
+
+    context = {
+      service = local.service_name
+    }
+  }
+}
+
+resource "aws_ssm_parameter" "slack_webhook" {
+  name      = "/${local.service_name}/slack-webhook"
+  type      = "SecureString"
+  value     = data.aws_kms_secrets.main.plaintext["slack_webhook"]
+  key_id    = data.aws_kms_key.ssm.arn
+  overwrite = "true"
 }
