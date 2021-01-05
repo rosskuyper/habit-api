@@ -16,7 +16,9 @@ phases:
       - unzip -qq terraform_0.14.2_linux_amd64.zip
       - mv terraform /usr/local/bin/terraform
       - chmod a+x /usr/local/bin/terraform
-      - export PR_URL=${CODEBUILD_SOURCE_VERSION/pr/https:\/\/github.com\/rosskuyper\/habit-api\/pull}
+      - echo $CODEBUILD_SOURCE_VERSION
+      - echo ${CODEBUILD_SOURCE_VERSION/pr/https:\/\/github.com\/rosskuyper\/habit-api\/pull}
+      # - export PR_URL=${CODEBUILD_SOURCE_VERSION/pr/https:\/\/github.com\/rosskuyper\/habit-api\/pull}
 
   pre_build:
     commands:
