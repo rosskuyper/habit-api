@@ -16,9 +16,7 @@ phases:
       - unzip -qq terraform_0.14.2_linux_amd64.zip
       - mv terraform /usr/local/bin/terraform
       - chmod a+x /usr/local/bin/terraform
-      - env
-      # - echo ${CODEBUILD_SOURCE_VERSION/pr/https:\/\/github.com\/rosskuyper\/habit-api\/pull}
-      # - export PR_URL=${CODEBUILD_SOURCE_VERSION/pr/https:\/\/github.com\/rosskuyper\/habit-api\/pull}
+      - export GITHUB_URL=https://github.com/rosskuyper/habit-api/commit/$CODEBUILD_RESOLVED_SOURCE_VERSION
 
   pre_build:
     commands:
@@ -37,7 +35,7 @@ phases:
       - cd "$CODEBUILD_SRC_DIR/infra"
       - terraform plan -out=main.tf.plan
       - terraform apply -auto-approve "main.tf.plan"
-      # - 'curl -X POST --data-urlencode "payload={\"channel\": \"#ci-cd-notifications\", \"username\": \"ci-bot\", \"text\": \"Backend Deploy Completed - $PR_URL\", \"icon_emoji\": \":male_mage:\"}" $SLACK_WEBHOOK'
+      - 'curl -X POST --data-urlencode "payload={\"channel\": \"#ci-cd-notifications\", \"username\": \"ci-bot\", \"text\": \"Backend Deploy Completed - $GITHUB_URL\", \"icon_emoji\": \":male_mage:\"}" $SLACK_WEBHOOK'
     finally:
       - rm -f main.tf.plan
       - cd "$CODEBUILD_SRC_DIR"
