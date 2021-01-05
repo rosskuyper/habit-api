@@ -1,10 +1,18 @@
 import {Arg, Authorized, Ctx, Mutation, Query, Resolver} from 'type-graphql'
-import {getTaskGroup, storeTaskGroup, updateTaskGroup} from '../mappers/TaskGroupMapper'
+import {getTaskGroup, getTaskGroups, storeTaskGroup, updateTaskGroup} from '../mappers/TaskGroupMapper'
 import {TaskGroupSchema} from '../schemas/TaskSchema'
 import {AuthorizedAppContext} from '../services/apollo'
 
 @Resolver()
 export class TaskGroupResolver {
+  @Authorized()
+  @Query(() => [TaskGroupSchema])
+  async taskGroups(@Ctx() context: AuthorizedAppContext): Promise<TaskGroupSchema[]> {
+    return await getTaskGroups({
+      userId: context.idToken.sub,
+    })
+  }
+
   @Authorized()
   @Query(() => TaskGroupSchema)
   async taskGroup(

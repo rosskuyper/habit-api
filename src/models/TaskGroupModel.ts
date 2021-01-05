@@ -12,7 +12,7 @@ export class TaskModel {
   @attribute()
   completedAt?: Date
 
-  @attribute({defaultProvider: () => new Date()})
+  @attribute()
   createdAt!: Date
 }
 

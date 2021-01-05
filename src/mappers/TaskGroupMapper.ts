@@ -1,3 +1,4 @@
+import {beginsWith} from '@aws/dynamodb-expressions'
 import {
   TaskGroupModel,
   forgeTaskGroup,
@@ -48,6 +49,23 @@ export const getTaskGroupAndTask = async (
 }
 
 /**
+ * Query TaskGroups for a given user
+ */
+export const getTaskGroups = async ({userId}: {userId: string}): Promise<TaskGroupModel[]> => {
+  const results = []
+  const iterator = await dynamoDbMapper.query(TaskGroupModel, {
+    hashKey: userId,
+    rangeKey: beginsWith('#TASKGROUP#'),
+  })
+
+  for await (const record of iterator) {
+    results.push(record)
+  }
+
+  return results
+}
+
+/**
  * Create and store a new Task Group
  */
 export const storeTaskGroup = async (params: StoreOrUpdateTaskGroupParams): Promise<TaskGroupModel> => {
@@ -88,6 +106,9 @@ export const storeTask = async (params: StoreTaskParams): Promise<TaskModel> => 
   if (findTask(taskGroup, task)) {
     throw new Error('TaskID already exists')
   }
+
+  // default provider doesn't work for embedded types
+  task.createdAt = new Date()
 
   // Add to the tasks
   taskGroup.tasks.push(task)
