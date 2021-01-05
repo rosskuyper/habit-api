@@ -107,6 +107,9 @@ export const storeTask = async (params: StoreTaskParams): Promise<TaskModel> => 
     throw new Error('TaskID already exists')
   }
 
+  // default provider doesn't work for embedded types
+  task.createdAt = new Date()
+
   // Add to the tasks
   taskGroup.tasks.push(task)
 
